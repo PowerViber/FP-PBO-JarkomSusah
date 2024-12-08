@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using SepuluhNopemberAdventure;
 
 namespace Sepuluh_Nopember_s_Adventure
 {
@@ -74,19 +75,15 @@ namespace Sepuluh_Nopember_s_Adventure
         }
 
 
-        public void Interact(Keys key)
+        public void Interact()
         {
-            switch (key)
-            {
-                case Keys.E:
-                    ShowDialog();
-                    break;
-            }
+            ShowDialog();
         }
 
         public void ShowDialog()
         {
-
+            QuizGame quizGameForm = new QuizGame();
+            quizGameForm.ShowDialog();
         }
     }
 }

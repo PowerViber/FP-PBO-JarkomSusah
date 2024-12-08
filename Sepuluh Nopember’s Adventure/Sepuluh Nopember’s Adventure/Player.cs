@@ -35,7 +35,6 @@ public class Player
         KeyStates[Keys.A] = false;
         KeyStates[Keys.S] = false;
         KeyStates[Keys.D] = false;
-        KeyStates[Keys.E] = false;
 
         UpdateSprite();
     }
@@ -145,4 +144,22 @@ public class Player
     {
         return nextPosition.IntersectsWith(otherObject.Bounds);
     }
+
+    public void Interact(NPC npc)
+    {
+        int interactionMargin = 20; // Defines interaction range
+
+        Rectangle expandedBounds = new Rectangle(
+            _playerPictureBox.Left - interactionMargin,
+            _playerPictureBox.Top - interactionMargin,
+            _playerPictureBox.Width + (interactionMargin * 2),
+            _playerPictureBox.Height + (interactionMargin * 2)
+        );
+
+        if (expandedBounds.IntersectsWith(npc.GetPictureBox().Bounds))
+        {
+            npc.Interact();
+        }
+    }
+
 }

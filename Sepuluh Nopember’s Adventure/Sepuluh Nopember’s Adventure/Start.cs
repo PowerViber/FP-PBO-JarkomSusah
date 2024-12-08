@@ -68,7 +68,15 @@ namespace Sepuluh_Nopember_s_Adventure
             _animationTimer.Tick += (sender, e) => _player.Walk(this.ClientSize, npc1_pbox);
             _animationTimer.Start();
 
-            this.KeyDown += (sender, e) => _player.KeyDown(e.KeyCode);
+            this.KeyDown += (sender, e) =>
+            {
+                _player.KeyDown(e.KeyCode);
+
+                if (e.KeyCode == Keys.E)
+                {
+                    _player.Interact(npc1);
+                }
+            };
             this.KeyUp += (sender, e) => _player.KeyUp(e.KeyCode);
 
             //npc2
@@ -87,6 +95,11 @@ namespace Sepuluh_Nopember_s_Adventure
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
             _player.KeyDown(e.KeyCode);
+
+            if (e.KeyCode == Keys.E)
+            {
+                _player.Interact(npc1); // Check interaction with NPC1
+            }
         }
 
         private void OnKeyUp(object sender, KeyEventArgs e)
@@ -94,4 +107,5 @@ namespace Sepuluh_Nopember_s_Adventure
             _player.KeyUp(e.KeyCode);
         }
     }
+    
 }
