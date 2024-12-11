@@ -18,26 +18,34 @@ namespace SepuluhNopemberAdventure
         private int ballSpeedX;
         private int ballSpeedY;
         private int paddleSpeed = 10;
-        private int npcPaddleSpeed = 5;
+        private int npcPaddleSpeed = 10;
+        private int originalPaddleSpeed; // Store original paddle speed
 
         private int playerScore = 0;
         private int npcScore = 0;
 
         private Random random = new Random();
+        private System.Windows.Forms.Timer speedBoostTimer; // Timer for speed boost
+        private System.Windows.Forms.Timer cooldownTimer;
+        private bool isCooldownActive = false;
+        private int cooldownTimeLeft = 10;
+        private Label cooldownLabel;
+
 
         private Dictionary<Keys, bool> keyStates = new Dictionary<Keys, bool>
         {
             { Keys.W, false },
             { Keys.S, false },
             { Keys.A, false },
-            { Keys.D, false }
+            { Keys.D, false },
+            { Keys.F, false }
         };
 
         private int npcHorizontalDirection = 1; 
         private int playerVerticalSpeed = 0; 
         private int playerHorizontalSpeed = 0; 
         private int npcVerticalSpeed = 0; 
-        private int npcHorizontalSpeed = 5; 
+        private int npcHorizontalSpeed = 10; 
 
         bool win = false;
 
@@ -101,10 +109,34 @@ namespace SepuluhNopemberAdventure
             };
             this.Controls.Add(scoreLabel);
 
+            // Cooldown label
+            cooldownLabel = new Label
+            {
+                Text = "",
+                Font = new Font("Arial", 12, FontStyle.Bold),
+                ForeColor = Color.Red,
+                Location = new Point(gameField.Left, gameField.Bottom + 10),
+                AutoSize = true
+            };
+            this.Controls.Add(cooldownLabel);
+
             // Game timer
             gameTimer = new System.Windows.Forms.Timer { Interval = 16 };
             gameTimer.Tick += GameTimer_Tick;
             gameTimer.Start();
+
+            // Speed boost timer
+            speedBoostTimer = new System.Windows.Forms.Timer();
+            speedBoostTimer.Interval = 2000; // 2 seconds
+            speedBoostTimer.Tick += SpeedBoostTimer_Tick;
+
+            // Cooldown timer
+            cooldownTimer = new System.Windows.Forms.Timer();
+            cooldownTimer.Interval = 1000; // 1-second intervals
+            cooldownTimer.Tick += CooldownTimer_Tick;
+
+            originalPaddleSpeed = paddleSpeed; // Save original paddle speed
+
 
             // Key events for player control
             this.KeyDown += PingPongGame_KeyDown;
@@ -159,6 +191,40 @@ namespace SepuluhNopemberAdventure
                 playerHorizontalSpeed = paddleSpeed;
             }
 
+            // F skill
+            if (keyStates[Keys.F] &&
+            playerPaddle.Right < gameField.Width / 2 &&
+            ball.Left < gameField.Width / 2 &&
+            !isCooldownActive)
+            {
+                // Swap the positions of the ball and the paddle
+                Point tempBallPosition = ball.Location;
+                Point tempPaddlePosition = playerPaddle.Location;
+
+                // Set new positions
+                ball.Location = new Point(tempPaddlePosition.X + playerPaddle.Width + 10, tempPaddlePosition.Y + (playerPaddle.Height / 2) - (ball.Height / 2));
+                playerPaddle.Location = new Point(tempBallPosition.X - playerPaddle.Width - 10, tempBallPosition.Y - (playerPaddle.Height / 2) + (ball.Height / 2));
+
+                // Boost player paddle speed
+                paddleSpeed += 5;
+                speedBoostTimer.Start();
+
+                ballSpeedY = random.Next(-50, 50);
+                ballSpeedX = random.Next(20, 50);
+                if (ballSpeedX < 0)
+                {
+                    ballSpeedX = -ballSpeedX;
+                }
+
+                playerPaddle.BackColor = Color.Yellow;
+
+                // Start cooldown
+                isCooldownActive = true;
+                cooldownTimeLeft = 10;
+                cooldownLabel.Text = $"F: {cooldownTimeLeft}s";
+                cooldownTimer.Start();
+            }
+
             // NPC paddle vertical movement
             npcVerticalSpeed = 0;
             if (ball.Top > npcPaddle.Top + npcPaddle.Height / 2 && npcPaddle.Bottom < gameField.Height)
@@ -200,20 +266,16 @@ namespace SepuluhNopemberAdventure
             // Ball collision with player paddle
             if (ball.Bounds.IntersectsWith(playerPaddle.Bounds) && ballSpeedX < 0)
             {
+                int temp;
                 ball.Left = playerPaddle.Right; // Correct position to prevent overlap
-
-                // Reverse Y direction based on collision position
-                if (ball.Bottom > playerPaddle.Top && ball.Top < playerPaddle.Bottom)
-                {
-                    ballSpeedY = ball.Top < playerPaddle.Top ? Math.Abs(ballSpeedY) : -Math.Abs(ballSpeedY);
-                }
 
                 // Reset ball speed to default
                 ballSpeedX = defaultBallSpeed;
-                //if(ballSpeedY > 0)
-                //    ballSpeedY = -ballSpeedY;
-                //else
-                //    ballSpeedY = ballSpeedY;
+                temp = random.Next(1, 3);
+                if (temp == 1)
+                    ballSpeedY = -ballSpeedY;
+                else
+                    ballSpeedY = ballSpeedY;
 
                 // Calculate resultant speed using paddle movement
                 double resultantSpeed = Math.Sqrt(playerHorizontalSpeed * playerHorizontalSpeed +
@@ -225,20 +287,17 @@ namespace SepuluhNopemberAdventure
             // Ball collision with NPC paddle
             if (ball.Bounds.IntersectsWith(npcPaddle.Bounds) && ballSpeedX > 0)
             {
+                int temp;
                 ball.Left = npcPaddle.Left - ball.Width; // Correct position to prevent overlap
-
-                // Reverse Y direction based on collision position
-                if (ball.Bottom > npcPaddle.Top && ball.Top < npcPaddle.Bottom)
-                {
-                    ballSpeedY = ball.Top < npcPaddle.Top ? Math.Abs(ballSpeedY) : -Math.Abs(ballSpeedY);
-                }
 
                 // Reset ball speed to default
                 ballSpeedX = defaultBallSpeed;
-                //if (ballSpeedY < 0)
-                //    ballSpeedY = -ballSpeedY;
-                //else
-                //    ballSpeedY = ballSpeedY;
+                temp = random.Next(1, 3);
+                if (temp == 1)
+                    ballSpeedY = -ballSpeedY;
+                else
+                    ballSpeedY = ballSpeedY;
+
 
                 // Calculate resultant speed using paddle movement
                 double resultantSpeed = Math.Sqrt(npcVerticalSpeed * npcVerticalSpeed);
@@ -263,14 +322,14 @@ namespace SepuluhNopemberAdventure
             scoreLabel.Text = $"Player: {playerScore}  |  NPC: {npcScore}";
 
             // End game condition
-            if (playerScore >= 5 && playerScore >= npcScore + 3)
+            if (playerScore >= 5 && playerScore >= npcScore + 3 && !win)
             {
                 win = true;
                 gameTimer.Stop();
                 MessageBox.Show("You win!", "Ping Pong Game", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Close();
             }
-            else if (npcScore >= 5 && npcScore >= playerScore + 3)
+            else if (npcScore >= 5 && npcScore >= playerScore + 3 && !win)
             {
                 gameTimer.Stop();
                 MessageBox.Show("NPC wins!", "Ping Pong Game", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -280,6 +339,9 @@ namespace SepuluhNopemberAdventure
 
         private void ResetBall(bool playerScored)
         {
+            // Reset ball
+            ResetBallPositions();
+
             // Reset the positions of both paddles and the ball
             ResetPositions();
 
@@ -304,11 +366,40 @@ namespace SepuluhNopemberAdventure
 
             // Reset NPC paddle position to the right center
             npcPaddle.Location = new Point(gameField.Width - 45, gameField.Height / 2 - npcPaddle.Height / 2);
+        }
 
+        private void ResetBallPositions()
+        {
             // Reset ball position to the center
             ball.Location = new Point(gameField.Width / 2 - ball.Width / 2, gameField.Height / 2 - ball.Height / 2);
         }
-        
+
+        // Timer tick: Reset the paddle speed after 2 seconds
+        private void SpeedBoostTimer_Tick(object sender, EventArgs e)
+        {
+            playerPaddle.BackColor = Color.Blue;
+            paddleSpeed = originalPaddleSpeed; // Reset speed to original
+            speedBoostTimer.Stop(); // Stop the timer
+        }
+
+        // Cooldown Timer Tick
+        private void CooldownTimer_Tick(object sender, EventArgs e)
+        {
+            cooldownTimeLeft--;
+
+            if (cooldownTimeLeft > 0)
+            {
+                cooldownLabel.Text = $"F: {cooldownTimeLeft}s";
+            }
+            else
+            {
+                // Reset cooldown
+                isCooldownActive = false;
+                cooldownLabel.Text = "";
+                cooldownTimer.Stop();
+            }
+        }
+
         public bool CheckWin()
         {
             return win;

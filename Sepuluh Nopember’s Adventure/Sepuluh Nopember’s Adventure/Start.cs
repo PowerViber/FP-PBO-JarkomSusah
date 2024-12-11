@@ -150,7 +150,7 @@ namespace Sepuluh_Nopember_s_Adventure
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 };
             _animationTimer.Tick += (sender, e) =>
             {
-                _player.Walk(this.ClientSize, null); 
+                _player.Walk(this.ClientSize, _npcPictureBoxes); 
                 // collision coin
                 for (int i = 0; i < _coins.Count; i++)
                 {
