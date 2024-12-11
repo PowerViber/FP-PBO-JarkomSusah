@@ -5,7 +5,7 @@ public class Player
     private const int PlayerWidth = 32;
     private const int PlayerHeight = 48;
     private const int TotalFrames = 8;
-
+    public int movementSpeed = 3; // Kecepatan default pemain
     private PictureBox _playerPictureBox;
     private Image _spriteSheet;
     private int _currentFrame;
@@ -13,6 +13,7 @@ public class Player
     private bool _isMoving;
 
     public Dictionary<Keys, bool> KeyStates = new Dictionary<Keys, bool>();
+
 
     public Player(Point startPosition)
     {
@@ -43,52 +44,51 @@ public class Player
 
     public void Walk(Size boundary, PictureBox npcBox)
     {
-        int speed = 3;
         _isMoving = false;
-
         Point tempPosition = _playerPictureBox.Location;
-
+        
+        //feat : add logika jika nabrak star maka movementspeed tambah
         if (KeyStates[Keys.S]) // Down
         {
             _currentRow = 0;
-            tempPosition.Y += speed;
+            tempPosition.Y += movementSpeed; 
             if (tempPosition.Y + _playerPictureBox.Height <= boundary.Height
-                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
             {
-                _playerPictureBox.Top += speed;
+                _playerPictureBox.Top += movementSpeed; 
                 _isMoving = true;
             }
         }
         if (KeyStates[Keys.W]) // Up
         {
             _currentRow = 1;
-            tempPosition.Y -= speed;
+            tempPosition.Y -= movementSpeed; 
             if (tempPosition.Y >= 0
-                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
             {
-                _playerPictureBox.Top -= speed;
+                _playerPictureBox.Top -= movementSpeed; 
                 _isMoving = true;
             }
         }
         if (KeyStates[Keys.A]) // Left
         {
             _currentRow = 2;
-            tempPosition.X -= speed;
+            tempPosition.X -= movementSpeed;
             if (tempPosition.X >= 0
-                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
             {
-                _playerPictureBox.Left -= speed;
+                _playerPictureBox.Left -= movementSpeed; 
                 _isMoving = true;
             }
         }
         if (KeyStates[Keys.D]) // Right
         {
             _currentRow = 3;
-            tempPosition.X += speed;
+            tempPosition.X += movementSpeed;
             if (tempPosition.X + _playerPictureBox.Width <= boundary.Width
-                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
             {
-                _playerPictureBox.Left += speed;
+                _playerPictureBox.Left += movementSpeed; 
                 _isMoving = true;
             }
         }
@@ -98,6 +98,13 @@ public class Player
         else
             StopWalking();
     }
+
+    public void IncreaseSpeed()
+    {
+        movementSpeed += 5; 
+        Console.WriteLine("Kecepatan sekarang: " + movementSpeed);  
+    }
+
 
     public void KeyDown(Keys key)
     {

@@ -23,6 +23,9 @@ namespace Sepuluh_Nopember_s_Adventure
         private Player _player;
         private System.Windows.Forms.Timer _animationTimer;
 
+        // Coin
+        private List<Coin> _coins;
+
         //npc1
         private PictureBox npc1_pbox;
         private NPC npc1;
@@ -64,10 +67,32 @@ namespace Sepuluh_Nopember_s_Adventure
             _player = new Player(new Point(PlayerX, PlayerY));
             this.Controls.Add(_player.GetPictureBox());
 
-            _animationTimer = new System.Windows.Forms.Timer { Interval = 16 };
-            _animationTimer.Tick += (sender, e) => _player.Walk(this.ClientSize, npc1_pbox);
-            _animationTimer.Start();
+            //coins
+            _coins = new List<Coin>(); // List to store multiple coins
+            AddCoin(new Point(400, 500)); // Add the first coin
+            AddCoin(new Point(200, 400)); // Add the second coin
+            AddCoin(new Point(600, 700)); // Add the third coin
 
+            // animation dan collision
+            _animationTimer = new System.Windows.Forms.Timer { Interval = 16 };
+            _animationTimer.Tick += (sender, e) =>
+            {
+                _player.Walk(this.ClientSize, null); 
+                // collision coin
+                for (int i = 0; i < _coins.Count; i++)
+                {
+                    if (_coins[i] != null && _coins[i].CheckCollision(_player.GetPictureBox()))
+                    {
+                        Console.WriteLine("Koin diambil!");
+                        _player.IncreaseSpeed(); 
+                        _coins[i].Collect(); 
+                        this.Controls.Remove(_coins[i].GetPictureBox()); 
+                        _coins[i] = null; 
+                    }
+                }
+            };
+            
+            _animationTimer.Start();
             this.KeyDown += (sender, e) =>
             {
                 _player.KeyDown(e.KeyCode);
@@ -98,13 +123,21 @@ namespace Sepuluh_Nopember_s_Adventure
 
             if (e.KeyCode == Keys.E)
             {
-                _player.Interact(npc1); // Check interaction with NPC1
+                _player.Interact(npc1); 
             }
         }
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
             _player.KeyUp(e.KeyCode);
+        }
+        
+        //method tambah koin
+        private void AddCoin(Point location)
+        {
+            Coin newCoin = new Coin(location);
+            _coins.Add(newCoin);
+            this.Controls.Add(newCoin.GetPictureBox());
         }
     }
     
