@@ -2,8 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Sepuluh_Nopember_s_Adventure;
-using System.Resources;
-using System.Reflection;
+
 
 namespace Sepuluh_Nopember_s_Adventure
 {
