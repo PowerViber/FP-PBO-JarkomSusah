@@ -10,6 +10,8 @@ namespace Sepuluh_Nopember_s_Adventure
 {
     public class Start : Form
     {
+        private int win = 0;
+        private const int winNeed = 2;
 
         // Barrier Coordinates for rivers (example)
         private PictureBox _waterPictureBox1;
@@ -61,17 +63,29 @@ namespace Sepuluh_Nopember_s_Adventure
                 BackColor = Color.Transparent,
                 BorderStyle = BorderStyle.None
             };
+            int finalScore1 = 0;
             npc1 = new NPC(2, 7, npc1_pbox)
             {
                 InteractionAction = () =>
                 {
                     QuizGame quizGameForm = new QuizGame();
-                    quizGameForm.ShowDialog();
+                    if (finalScore1 == 3)
+                    {
+                        quizGameForm.GameDone();
+                        win++;
+                        CheckWin();
+                    }
+                    else
+                    {
+                        quizGameForm.ShowDialog();
+                        finalScore1 = quizGameForm.GetScore();
+                    }
                 }
             };
             this.Controls.Add(npc1_pbox);
 
             //npc2
+            bool finalWin1 = false;
             npc2_pbox = new PictureBox
             {
                 Location = new Point(Npc2X, Npc2Y),
@@ -83,7 +97,17 @@ namespace Sepuluh_Nopember_s_Adventure
                 InteractionAction = () =>
                 {
                     PingPongGame pingPongGameForm = new PingPongGame();
-                    pingPongGameForm.ShowDialog();
+                    if (finalWin1)
+                    {
+                        pingPongGameForm.GameDone();
+                        win++;
+                        CheckWin();
+                    }
+                    else
+                    {
+                        pingPongGameForm.ShowDialog();
+                        finalWin1 = pingPongGameForm.CheckWin();
+                    }
                 }
             };
             this.Controls.Add(npc2_pbox);
@@ -143,6 +167,19 @@ namespace Sepuluh_Nopember_s_Adventure
         {
             _player.KeyUp(e.KeyCode);
         }
+
+        private void CheckWin()
+        {
+            if (win >= 2)
+            {
+                // Change the map to Resource.map2
+                using (MemoryStream ms = new MemoryStream(Resource.stage_final))
+                {
+                    this.BackgroundImage = Image.FromStream(ms);
+                }
+                this.BackgroundImageLayout = ImageLayout.Stretch;
+            }
+        }
+
     }
-    
 }

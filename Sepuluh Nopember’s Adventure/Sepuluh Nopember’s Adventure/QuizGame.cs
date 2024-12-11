@@ -93,5 +93,17 @@ namespace SepuluhNopemberAdventure
             MessageBox.Show($"Selamat! Berikut adalah skor kamu: {score}", "Quiz Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Close();
         }
+
+        public void GameDone()
+        {
+            MessageBox.Show("Sudah menamatkan Quiz ini, silahkan lanjut ke minigame selanjutnya.",
+                            "Quiz Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.Close();
+        }
+
+        public int GetScore()
+        {
+            return score;
+        }
     }
 }

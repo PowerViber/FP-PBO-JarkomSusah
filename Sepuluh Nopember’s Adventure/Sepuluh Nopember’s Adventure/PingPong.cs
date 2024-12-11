@@ -14,6 +14,7 @@ namespace SepuluhNopemberAdventure
         private System.Windows.Forms.Timer gameTimer;
         private Label scoreLabel;
 
+        private const int defaultBallSpeed = 5; // Default ball speed
         private int ballSpeedX;
         private int ballSpeedY;
         private int paddleSpeed = 10;
@@ -32,8 +33,13 @@ namespace SepuluhNopemberAdventure
             { Keys.D, false }
         };
 
-        private int npcHorizontalDirection = 1; // 1 for right, -1 for left
-        private int npcHorizontalSpeed = 5; // Speed for horizontal movement
+        private int npcHorizontalDirection = 1; 
+        private int playerVerticalSpeed = 0; 
+        private int playerHorizontalSpeed = 0; 
+        private int npcVerticalSpeed = 0; 
+        private int npcHorizontalSpeed = 5; 
+
+        bool win = false;
 
         public PingPongGame()
         {
@@ -43,7 +49,7 @@ namespace SepuluhNopemberAdventure
         private void InitializeGame()
         {
             this.Text = "Ping Pong Game";
-            this.Size = new Size(1000, 800); // Larger form size for zoom-out effect
+            this.Size = new Size(1000, 800); 
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -111,7 +117,7 @@ namespace SepuluhNopemberAdventure
         {
             if (keyStates.ContainsKey(e.KeyCode))
             {
-                keyStates[e.KeyCode] = true; // Mark key as pressed
+                keyStates[e.KeyCode] = true; 
             }
         }
 
@@ -119,47 +125,58 @@ namespace SepuluhNopemberAdventure
         {
             if (keyStates.ContainsKey(e.KeyCode))
             {
-                keyStates[e.KeyCode] = false; // Mark key as released
+                keyStates[e.KeyCode] = false; 
             }
         }
 
         private void GameTimer_Tick(object sender, EventArgs e)
         {
+            // Track player paddle vertical speed
+            playerVerticalSpeed = 0;
+            playerHorizontalSpeed = 0;
+
             // Player paddle movement using keyStates
             if (keyStates[Keys.W] && playerPaddle.Top > 0)
             {
                 playerPaddle.Top -= paddleSpeed;
+                playerVerticalSpeed = -paddleSpeed;
             }
             if (keyStates[Keys.S] && playerPaddle.Bottom < gameField.Height)
             {
                 playerPaddle.Top += paddleSpeed;
+                playerVerticalSpeed = paddleSpeed;
             }
 
             // Player paddle horizontal movement (A and D)
             if (keyStates[Keys.A] && playerPaddle.Left > 0)
             {
                 playerPaddle.Left -= paddleSpeed;
+                playerHorizontalSpeed = -paddleSpeed;
             }
             if (keyStates[Keys.D] && playerPaddle.Right < gameField.Width / 2)
             {
                 playerPaddle.Left += paddleSpeed;
+                playerHorizontalSpeed = paddleSpeed;
             }
 
             // NPC paddle vertical movement
+            npcVerticalSpeed = 0;
             if (ball.Top > npcPaddle.Top + npcPaddle.Height / 2 && npcPaddle.Bottom < gameField.Height)
             {
                 npcPaddle.Top += npcPaddleSpeed;
+                npcVerticalSpeed = npcPaddleSpeed;
             }
             else if (ball.Top < npcPaddle.Top + npcPaddle.Height / 2 && npcPaddle.Top > 0)
             {
                 npcPaddle.Top -= npcPaddleSpeed;
+                npcVerticalSpeed = -npcPaddleSpeed;
             }
 
-            // NPC paddle horizontal movement (randomized)
+            // NPC paddle horizontal movement(randomized)
             npcPaddle.Left += npcHorizontalDirection * npcHorizontalSpeed;
             if (npcPaddle.Left <= gameField.Width / 2 || npcPaddle.Right >= gameField.Width)
             {
-                npcHorizontalDirection *= -1; // Reverse direction
+                npcHorizontalDirection *= -1; 
             }
 
             // Ball movement
@@ -170,27 +187,65 @@ namespace SepuluhNopemberAdventure
             if (ball.Top <= 0)
             {
                 ball.Top = 0;
-                ballSpeedY = GetRandomizedSpeed(); // Reverse and randomize speed
+                ballSpeedY = random.Next(3, 10);
+                ballSpeedY = Math.Abs(ballSpeedY);
             }
             else if (ball.Bottom >= gameField.Height)
             {
                 ball.Top = gameField.Height - ball.Height; // Correct position at the bottom
-                ballSpeedY = -GetRandomizedSpeed(); // Reverse and randomize speed
+                ballSpeedY = random.Next(3, 10);
+                ballSpeedY = -Math.Abs(ballSpeedY);
             }
 
             // Ball collision with player paddle
             if (ball.Bounds.IntersectsWith(playerPaddle.Bounds) && ballSpeedX < 0)
             {
-                ball.Left = playerPaddle.Right; // Correct position
-                ballSpeedX = GetRandomizedSpeed();
+                ball.Left = playerPaddle.Right; // Correct position to prevent overlap
+
+                // Reverse Y direction based on collision position
+                if (ball.Bottom > playerPaddle.Top && ball.Top < playerPaddle.Bottom)
+                {
+                    ballSpeedY = ball.Top < playerPaddle.Top ? Math.Abs(ballSpeedY) : -Math.Abs(ballSpeedY);
+                }
+
+                // Reset ball speed to default
+                ballSpeedX = defaultBallSpeed;
+                //if(ballSpeedY > 0)
+                //    ballSpeedY = -ballSpeedY;
+                //else
+                //    ballSpeedY = ballSpeedY;
+
+                // Calculate resultant speed using paddle movement
+                double resultantSpeed = Math.Sqrt(playerHorizontalSpeed * playerHorizontalSpeed +
+                                                  playerVerticalSpeed * playerVerticalSpeed);
+                ballSpeedX += (int)Math.Ceiling(resultantSpeed);
+                ballSpeedX = Math.Abs(ballSpeedX); // Ensure it moves toward the NPC
             }
 
             // Ball collision with NPC paddle
             if (ball.Bounds.IntersectsWith(npcPaddle.Bounds) && ballSpeedX > 0)
             {
-                ball.Left = npcPaddle.Left - ball.Width; // Correct position
-                ballSpeedX = -GetRandomizedSpeed();
+                ball.Left = npcPaddle.Left - ball.Width; // Correct position to prevent overlap
+
+                // Reverse Y direction based on collision position
+                if (ball.Bottom > npcPaddle.Top && ball.Top < npcPaddle.Bottom)
+                {
+                    ballSpeedY = ball.Top < npcPaddle.Top ? Math.Abs(ballSpeedY) : -Math.Abs(ballSpeedY);
+                }
+
+                // Reset ball speed to default
+                ballSpeedX = defaultBallSpeed;
+                //if (ballSpeedY < 0)
+                //    ballSpeedY = -ballSpeedY;
+                //else
+                //    ballSpeedY = ballSpeedY;
+
+                // Calculate resultant speed using paddle movement
+                double resultantSpeed = Math.Sqrt(npcVerticalSpeed * npcVerticalSpeed);
+                ballSpeedX += (int)Math.Ceiling(resultantSpeed);
+                ballSpeedX = -Math.Abs(ballSpeedX); // Ensure it moves toward the player
             }
+
 
             // Ball out of bounds
             if (ball.Left <= 0)
@@ -210,6 +265,7 @@ namespace SepuluhNopemberAdventure
             // End game condition
             if (playerScore >= 5 && playerScore >= npcScore + 3)
             {
+                win = true;
                 gameTimer.Stop();
                 MessageBox.Show("You win!", "Ping Pong Game", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Close();
@@ -224,27 +280,45 @@ namespace SepuluhNopemberAdventure
 
         private void ResetBall(bool playerScored)
         {
-            // Reset ball position to the center
-            ball.Location = new Point(gameField.Width / 2 - ball.Width / 2, gameField.Height / 2 - ball.Height / 2);
+            // Reset the positions of both paddles and the ball
+            ResetPositions();
 
-            // Reset ball speed with direction based on who scored
+            // Reset ball speed
             ResetBallSpeed(playerScored);
         }
 
         private void ResetBallSpeed(bool playerScored)
         {
             int speedX = random.Next(3, 10);
-            int speedY = random.Next(3, 10) * (random.Next(0, 2) == 0 ? 1 : -1); // Randomize Y direction
+            int speedY = random.Next(3, 10) * (random.Next(0, 2) == 0 ? 1 : -1); 
 
             // Set X direction: positive (right) if player scored, negative (left) if NPC scored
             ballSpeedX = playerScored ? speedX : -speedX;
             ballSpeedY = speedY;
         }
 
-
-        private int GetRandomizedSpeed()
+        private void ResetPositions()
         {
-            return random.Next(3, 10); // Random speed between 3 and 10
+            // Reset player paddle position to the left center
+            playerPaddle.Location = new Point(30, gameField.Height / 2 - playerPaddle.Height / 2);
+
+            // Reset NPC paddle position to the right center
+            npcPaddle.Location = new Point(gameField.Width - 45, gameField.Height / 2 - npcPaddle.Height / 2);
+
+            // Reset ball position to the center
+            ball.Location = new Point(gameField.Width / 2 - ball.Width / 2, gameField.Height / 2 - ball.Height / 2);
+        }
+        
+        public bool CheckWin()
+        {
+            return win;
+        }
+
+        public void GameDone()
+        {
+            MessageBox.Show("Sudah menamatkan MiniGame ini, silahkan pergi ke area terakhir",
+                            "Quiz Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.Close();
         }
     }
 }
