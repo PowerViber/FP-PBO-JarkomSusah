@@ -18,15 +18,15 @@ namespace Sepuluh_Nopember_s_Adventure
                 Size = new Size(CoinWidth, CoinHeight),
                 Location = location,
                 BackColor = Color.Transparent,
-                Image = new Bitmap(Resource.star), 
-                SizeMode = PictureBoxSizeMode.StretchImage 
+                Image = new Bitmap(Resource.star),
+                SizeMode = PictureBoxSizeMode.StretchImage
             };
         }
 
         public PictureBox GetPictureBox() => _coinPictureBox;
         public void Collect()
         {
-            _coinPictureBox.Visible = false; 
+            _coinPictureBox.Visible = false;
         }
 
         public bool CheckCollision(PictureBox playerBox)

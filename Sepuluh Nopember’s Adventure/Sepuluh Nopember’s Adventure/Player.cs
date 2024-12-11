@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-
+using Sepuluh_Nopember_s_Adventure;
 public class Player
 {
     private const int PlayerWidth = 32;
     private const int PlayerHeight = 48;
     private const int TotalFrames = 8;
+    private int movementSpeed = 3;
 
     private PictureBox _playerPictureBox;
     private Image _spriteSheet;
@@ -45,54 +46,53 @@ public class Player
 
         public PictureBox GetPictureBox() => _playerPictureBox;
 
-    public void Walk(Size boundary, PictureBox npcBox)
+    public void Walk(Size boundary, List<PictureBox> npcBox)
     {
-        int speed = 3;
         _isMoving = false;
-
         Point tempPosition = _playerPictureBox.Location;
 
+        //feat : add logika jika nabrak star maka movementspeed tambah
         if (KeyStates[Keys.S]) // Down
         {
             _currentRow = 0;
-            tempPosition.Y += speed;
+            tempPosition.Y += movementSpeed;
             if (tempPosition.Y + _playerPictureBox.Height <= boundary.Height
-                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
             {
-                _playerPictureBox.Top += speed;
+                _playerPictureBox.Top += movementSpeed;
                 _isMoving = true;
             }
         }
         if (KeyStates[Keys.W]) // Up
         {
             _currentRow = 1;
-            tempPosition.Y -= speed;
+            tempPosition.Y -= movementSpeed;
             if (tempPosition.Y >= 0
-                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
             {
-                _playerPictureBox.Top -= speed;
+                _playerPictureBox.Top -= movementSpeed;
                 _isMoving = true;
             }
         }
         if (KeyStates[Keys.A]) // Left
         {
             _currentRow = 2;
-            tempPosition.X -= speed;
+            tempPosition.X -= movementSpeed;
             if (tempPosition.X >= 0
-                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
             {
-                _playerPictureBox.Left -= speed;
+                _playerPictureBox.Left -= movementSpeed;
                 _isMoving = true;
             }
         }
         if (KeyStates[Keys.D]) // Right
         {
             _currentRow = 3;
-            tempPosition.X += speed;
+            tempPosition.X += movementSpeed;
             if (tempPosition.X + _playerPictureBox.Width <= boundary.Width
-                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
             {
-                _playerPictureBox.Left += speed;
+                _playerPictureBox.Left += movementSpeed;
                 _isMoving = true;
             }
         }
@@ -103,76 +103,82 @@ public class Player
             StopWalking();
     }
 
+    public void IncreaseSpeed()
+    {
+        movementSpeed += 5;
+        Console.WriteLine("Kecepatan sekarang: " + movementSpeed);
+    }
+
     public void KeyDown(Keys key)
     {
         if (KeyStates.ContainsKey(key))
             KeyStates[key] = true; // Mark key as pressed
     }
 
-        public void KeyUp(Keys key)
+    public void KeyUp(Keys key)
+    {
+        if (KeyStates.ContainsKey(key))
+            KeyStates[key] = false; // Mark key as released
+    }
+
+    public void StopWalking()
+    {
+        _isMoving = false;
+        _currentFrame = 0;
+        UpdateSprite();
+    }
+
+    public void Animate()
+    {
+        _currentFrame = (_currentFrame + 1) % TotalFrames;
+        UpdateSprite();
+    }
+
+    private void UpdateSprite()
+    {
+        int frameWidth = _spriteSheet.Width / TotalFrames;
+        int frameHeight = _spriteSheet.Height / 4;
+
+        Rectangle srcRect = new Rectangle(_currentFrame * frameWidth, _currentRow * frameHeight, frameWidth, frameHeight);
+        Bitmap currentFrameImage = new Bitmap(frameWidth, frameHeight);
+
+        using (Graphics g = Graphics.FromImage(currentFrameImage))
         {
-            if (KeyStates.ContainsKey(key))
-                KeyStates[key] = false; // Mark key as released
+            g.DrawImage(_spriteSheet, new Rectangle(0, 0, frameWidth, frameHeight), srcRect, GraphicsUnit.Pixel);
         }
 
-        public void StopWalking()
+        _playerPictureBox.Image = currentFrameImage;
+    }
+
+    public bool CheckCollision(List<PictureBox> npcBoxes, Rectangle nextPosition)
+    {
+        foreach (var npcBox in npcBoxes)
         {
-            _isMoving = false;
-            _currentFrame = 0;
-            UpdateSprite();
+            if (nextPosition.IntersectsWith(npcBox.Bounds))
+                return true;
         }
+        return false;
+    }
 
-        public void Animate()
+    public void Interact(List<NPC> npcs)
+    {
+        int interactionMargin = 20; // Defines interaction range
+
+        Rectangle expandedBounds = new Rectangle(
+            _playerPictureBox.Left - interactionMargin,
+            _playerPictureBox.Top - interactionMargin,
+            _playerPictureBox.Width + (interactionMargin * 2),
+            _playerPictureBox.Height + (interactionMargin * 2)
+        );
+
+        foreach (var npc in npcs)
         {
-            _currentFrame = (_currentFrame + 1) % TotalFrames;
-            UpdateSprite();
-        }
-
-        private void UpdateSprite()
-        {
-            int frameWidth = _spriteSheet.Width / TotalFrames;
-            int frameHeight = _spriteSheet.Height / 4;
-
-            Rectangle srcRect = new Rectangle(_currentFrame * frameWidth, _currentRow * frameHeight, frameWidth, frameHeight);
-            Bitmap currentFrameImage = new Bitmap(frameWidth, frameHeight);
-
-            using (Graphics g = Graphics.FromImage(currentFrameImage))
+            if (expandedBounds.IntersectsWith(npc.GetPictureBox().Bounds))
             {
-                g.DrawImage(_spriteSheet, new Rectangle(0, 0, frameWidth, frameHeight), srcRect, GraphicsUnit.Pixel);
-            }
-
-            _playerPictureBox.Image = currentFrameImage;
-        }
-
-        public bool CheckCollision(List<PictureBox> npcBoxes, Rectangle nextPosition)
-        {
-            foreach (var npcBox in npcBoxes)
-            {
-                if (nextPosition.IntersectsWith(npcBox.Bounds))
-                    return true;
-            }
-            return false;
-        }
-
-        public void Interact(List<NPC> npcs)
-        {
-            int interactionMargin = 20; // Defines interaction range
-
-            Rectangle expandedBounds = new Rectangle(
-                _playerPictureBox.Left - interactionMargin,
-                _playerPictureBox.Top - interactionMargin,
-                _playerPictureBox.Width + (interactionMargin * 2),
-                _playerPictureBox.Height + (interactionMargin * 2)
-            );
-
-            foreach (var npc in npcs)
-            {
-                if (expandedBounds.IntersectsWith(npc.GetPictureBox().Bounds))
-                {
-                    npc.Interact();
-                    break; // Interact with the first NPC in range
-                }
+                npc.Interact();
+                break; // Interact with the first NPC in range
             }
         }
     }
 }
+
