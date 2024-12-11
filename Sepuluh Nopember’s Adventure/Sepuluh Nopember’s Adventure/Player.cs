@@ -4,28 +4,26 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Sepuluh_Nopember_s_Adventure
+public class Player
 {
-    public class Player
-    {
-        private const int PlayerWidth = 32;
-        private const int PlayerHeight = 48;
-        private const int TotalFrames = 8;
+    private const int PlayerWidth = 32;
+    private const int PlayerHeight = 48;
+    private const int TotalFrames = 8;
 
-        private PictureBox _playerPictureBox;
-        private Image _spriteSheet;
-        private int _currentFrame;
-        private int _currentRow;
-        private bool _isMoving;
+    private PictureBox _playerPictureBox;
+    private Image _spriteSheet;
+    private int _currentFrame;
+    private int _currentRow;
+    private bool _isMoving;
 
         public Dictionary<Keys, bool> KeyStates = new Dictionary<Keys, bool>();
 
-        public Player(Point startPosition)
+    public Player(Point startPosition)
+    {
+        using (MemoryStream ms = new MemoryStream(Resource.user_male))
         {
-            using (MemoryStream ms = new MemoryStream(Resource.user_male))
-            {
-                _spriteSheet = Image.FromStream(ms);
-            }
+            _spriteSheet = Image.FromStream(ms);
+        }
 
             _currentFrame = 0;
             _currentRow = 0;
@@ -47,69 +45,69 @@ namespace Sepuluh_Nopember_s_Adventure
 
         public PictureBox GetPictureBox() => _playerPictureBox;
 
-        public void Walk(Size boundary, List<PictureBox> npcBoxes)
+    public void Walk(Size boundary, PictureBox npcBox)
+    {
+        int speed = 3;
+        _isMoving = false;
+
+        Point tempPosition = _playerPictureBox.Location;
+
+        if (KeyStates[Keys.S]) // Down
         {
-            int speed = 3;
-            _isMoving = false;
-
-            Point tempPosition = _playerPictureBox.Location;
-
-            if (KeyStates[Keys.S]) // Down
+            _currentRow = 0;
+            tempPosition.Y += speed;
+            if (tempPosition.Y + _playerPictureBox.Height <= boundary.Height
+                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
             {
-                _currentRow = 0;
-                tempPosition.Y += speed;
-                if (tempPosition.Y + _playerPictureBox.Height <= boundary.Height
-                    && !CheckCollision(npcBoxes, new Rectangle(tempPosition, _playerPictureBox.Size)))
-                {
-                    _playerPictureBox.Top += speed;
-                    _isMoving = true;
-                }
+                _playerPictureBox.Top += speed;
+                _isMoving = true;
             }
-            if (KeyStates[Keys.W]) // Up
+        }
+        if (KeyStates[Keys.W]) // Up
+        {
+            _currentRow = 1;
+            tempPosition.Y -= speed;
+            if (tempPosition.Y >= 0
+                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
             {
-                _currentRow = 1;
-                tempPosition.Y -= speed;
-                if (tempPosition.Y >= 0
-                    && !CheckCollision(npcBoxes, new Rectangle(tempPosition, _playerPictureBox.Size)))
-                {
-                    _playerPictureBox.Top -= speed;
-                    _isMoving = true;
-                }
+                _playerPictureBox.Top -= speed;
+                _isMoving = true;
             }
-            if (KeyStates[Keys.A]) // Left
+        }
+        if (KeyStates[Keys.A]) // Left
+        {
+            _currentRow = 2;
+            tempPosition.X -= speed;
+            if (tempPosition.X >= 0
+                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
             {
-                _currentRow = 2;
-                tempPosition.X -= speed;
-                if (tempPosition.X >= 0
-                    && !CheckCollision(npcBoxes, new Rectangle(tempPosition, _playerPictureBox.Size)))
-                {
-                    _playerPictureBox.Left -= speed;
-                    _isMoving = true;
-                }
+                _playerPictureBox.Left -= speed;
+                _isMoving = true;
             }
-            if (KeyStates[Keys.D]) // Right
+        }
+        if (KeyStates[Keys.D]) // Right
+        {
+            _currentRow = 3;
+            tempPosition.X += speed;
+            if (tempPosition.X + _playerPictureBox.Width <= boundary.Width
+                && !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
             {
-                _currentRow = 3;
-                tempPosition.X += speed;
-                if (tempPosition.X + _playerPictureBox.Width <= boundary.Width
-                    && !CheckCollision(npcBoxes, new Rectangle(tempPosition, _playerPictureBox.Size)))
-                {
-                    _playerPictureBox.Left += speed;
-                    _isMoving = true;
-                }
+                _playerPictureBox.Left += speed;
+                _isMoving = true;
             }
-
-            if (_isMoving)
-                Animate();
-            else
-                StopWalking();
         }
 
-        public void KeyDown(Keys key)
-        {
-            if (KeyStates.ContainsKey(key))
-                KeyStates[key] = true; // Mark key as pressed
-        }
+        if (_isMoving)
+            Animate();
+        else
+            StopWalking();
+    }
+
+    public void KeyDown(Keys key)
+    {
+        if (KeyStates.ContainsKey(key))
+            KeyStates[key] = true; // Mark key as pressed
+    }
 
         public void KeyUp(Keys key)
         {

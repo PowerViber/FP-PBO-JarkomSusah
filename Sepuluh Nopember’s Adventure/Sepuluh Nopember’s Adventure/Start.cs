@@ -26,6 +26,9 @@ namespace Sepuluh_Nopember_s_Adventure
         private Player _player;
         private System.Windows.Forms.Timer _animationTimer;
 
+        // Coin
+        private List<Coin> _coins;
+
         private List<PictureBox> _npcPictureBoxes;
         private List<NPC> _npcs;
 
@@ -137,10 +140,33 @@ namespace Sepuluh_Nopember_s_Adventure
             _player = new Player(new Point(PlayerX, PlayerY));
             this.Controls.Add(_player.GetPictureBox());
 
+            //coins
+            _coins = new List<Coin>(); // List to store multiple coins
+            AddCoin(new Point(400, 500)); // Add the first coin
+            AddCoin(new Point(200, 400)); // Add the second coin
+            AddCoin(new Point(600, 700)); // Add the third coin
+
+            // animation dan collision
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 };
+            _animationTimer.Tick += (sender, e) =>
+            {
+                _player.Walk(this.ClientSize, null); 
+                // collision coin
+                for (int i = 0; i < _coins.Count; i++)
+                {
+                    if (_coins[i] != null && _coins[i].CheckCollision(_player.GetPictureBox()))
+                    {
+                        Console.WriteLine("Koin diambil!");
+                        _player.IncreaseSpeed(); 
+                        _coins[i].Collect(); 
+                        this.Controls.Remove(_coins[i].GetPictureBox()); 
+                        _coins[i] = null; 
+                    }
+                }
+            };
+            
             _animationTimer.Tick += (sender, e) => _player.Walk(this.ClientSize, _npcPictureBoxes);
             _animationTimer.Start();
-
             this.KeyDown += (sender, e) =>
             {
                 _player.KeyDown(e.KeyCode);
@@ -151,6 +177,18 @@ namespace Sepuluh_Nopember_s_Adventure
                 }
             };
             this.KeyUp += (sender, e) => _player.KeyUp(e.KeyCode);
+
+            //npc2
+            //npc2_pbox = new PictureBox
+            //{
+            //    Location = new Point(Npc2X, Npc2Y),
+            //    BackColor = Color.Transparent,
+            //    BorderStyle = BorderStyle.None
+            //};
+            //npc2 = new NPC(2, 7, npc2_pbox);
+            //this.Controls.Add(npc2_pbox);
+
+            //npc3
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
@@ -159,6 +197,7 @@ namespace Sepuluh_Nopember_s_Adventure
 
             if (e.KeyCode == Keys.E)
             {
+                _player.Interact(npc1); 
                 _player.Interact(_npcs); 
             }
         }
@@ -167,6 +206,17 @@ namespace Sepuluh_Nopember_s_Adventure
         {
             _player.KeyUp(e.KeyCode);
         }
+        
+        //method tambah koin
+        private void AddCoin(Point location)
+        {
+            Coin newCoin = new Coin(location);
+            _coins.Add(newCoin);
+            this.Controls.Add(newCoin.GetPictureBox());
+        }
+    }
+    
+}
 
         private void CheckWin()
         {
