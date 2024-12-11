@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using Sepuluh_Nopember_s_Adventure;
 
-
 namespace Sepuluh_Nopember_s_Adventure
 {
     public class Coin
