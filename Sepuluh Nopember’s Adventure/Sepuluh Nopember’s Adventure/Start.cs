@@ -197,7 +197,6 @@ namespace Sepuluh_Nopember_s_Adventure
 
             if (e.KeyCode == Keys.E)
             {
-                _player.Interact(npc1); 
                 _player.Interact(_npcs); 
             }
         }
@@ -214,9 +213,6 @@ namespace Sepuluh_Nopember_s_Adventure
             _coins.Add(newCoin);
             this.Controls.Add(newCoin.GetPictureBox());
         }
-    }
-    
-}
 
         private void CheckWin()
         {
