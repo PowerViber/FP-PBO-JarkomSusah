@@ -23,12 +23,15 @@ namespace Sepuluh_Nopember_s_Adventure
         private int _currentFrame;
         private int _currentRow;
 
+        public Action InteractionAction { get; set; }
+
         public NPC(int row, int column, PictureBox npcPictureBox)
         {
             _npcPictureBox = npcPictureBox;
 
             _npcPictureBox.Tag = new { Row = row, Column = column, Size = new Size(NpcWidth, NpcHeight) };
             _npcPictureBox.Size = new Size(NpcWidth, NpcHeight);
+            InteractionAction = DefaultInteraction;
 
             using (MemoryStream ms = new MemoryStream(Resource.npc))
             {
@@ -77,13 +80,12 @@ namespace Sepuluh_Nopember_s_Adventure
 
         public void Interact()
         {
-            ShowDialog();
+            InteractionAction?.Invoke(); // Invoke the assigned action
         }
 
-        public void ShowDialog()
+        private void DefaultInteraction()
         {
-            QuizGame quizGameForm = new QuizGame();
-            quizGameForm.ShowDialog();
+            MessageBox.Show("This NPC has no specific interaction.");
         }
     }
 }
