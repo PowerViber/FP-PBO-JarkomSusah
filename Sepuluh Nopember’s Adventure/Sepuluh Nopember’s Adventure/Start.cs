@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SepuluhNopemberAdventure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Resources;
@@ -26,6 +27,9 @@ namespace Sepuluh_Nopember_s_Adventure
         // Coin
         private List<Coin> _coins;
 
+        private List<PictureBox> _npcPictureBoxes;
+        private List<NPC> _npcs;
+
         //npc1
         private PictureBox npc1_pbox;
         private NPC npc1;
@@ -33,10 +37,10 @@ namespace Sepuluh_Nopember_s_Adventure
         private const int Npc1Y = 800;
 
         //npc2
-        //private PictureBox npc2_pbox;
-        //private NPC npc2;
-        //private const int Npc2X = 120;
-        //private const int Npc2Y = 800;
+        private PictureBox npc2_pbox;
+        private NPC npc2;
+        private const int Npc2X = 700;
+        private const int Npc2Y = 500;
 
         public Start()
         {
@@ -60,8 +64,53 @@ namespace Sepuluh_Nopember_s_Adventure
                 BackColor = Color.Transparent,
                 BorderStyle = BorderStyle.None
             };
-            npc1 = new NPC(2, 7, npc1_pbox);
+            npc1 = new NPC(2, 7, npc1_pbox)
+            {
+                InteractionAction = () =>
+                {
+                    QuizGame quizGameForm = new QuizGame();
+                    quizGameForm.ShowDialog();
+                }
+            };
             this.Controls.Add(npc1_pbox);
+
+            //npc2
+            npc2_pbox = new PictureBox
+            {
+                Location = new Point(Npc2X, Npc2Y),
+                BackColor = Color.Transparent,
+                BorderStyle = BorderStyle.None
+            };
+            npc2 = new NPC(5, 1, npc2_pbox)
+            {
+                InteractionAction = () =>
+                {
+                    PingPongGame pingPongGameForm = new PingPongGame();
+                    pingPongGameForm.ShowDialog();
+                }
+            };
+            this.Controls.Add(npc2_pbox);
+
+
+            //-------- NPC LIST ----------//
+            _npcs = new List<NPC>
+            {
+                npc1,
+                npc2
+            };
+
+            _npcPictureBoxes = new List<PictureBox>
+            {
+                npc1_pbox,
+                npc2_pbox
+            };
+
+            foreach (var npcPbox in _npcPictureBoxes)
+            {
+                this.Controls.Add(npcPbox);
+            }
+            //---------------------------//
+
 
             //player
             _player = new Player(new Point(PlayerX, PlayerY));
@@ -92,6 +141,7 @@ namespace Sepuluh_Nopember_s_Adventure
                 }
             };
             
+            _animationTimer.Tick += (sender, e) => _player.Walk(this.ClientSize, _npcPictureBoxes);
             _animationTimer.Start();
             this.KeyDown += (sender, e) =>
             {
@@ -99,7 +149,7 @@ namespace Sepuluh_Nopember_s_Adventure
 
                 if (e.KeyCode == Keys.E)
                 {
-                    _player.Interact(npc1);
+                    _player.Interact(_npcs);
                 }
             };
             this.KeyUp += (sender, e) => _player.KeyUp(e.KeyCode);
@@ -124,6 +174,7 @@ namespace Sepuluh_Nopember_s_Adventure
             if (e.KeyCode == Keys.E)
             {
                 _player.Interact(npc1); 
+                _player.Interact(_npcs); 
             }
         }
 
