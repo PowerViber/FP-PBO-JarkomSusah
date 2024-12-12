@@ -18,14 +18,15 @@ namespace SepuluhNopemberAdventure
         private int ballSpeedX;
         private int ballSpeedY;
         private int paddleSpeed = 10;
-        private int npcPaddleSpeed = 10;
-        private int originalPaddleSpeed; // Store original paddle speed
+        private int npcPaddleSpeed = 2;
+        private int originalPaddleSpeed;
+        private int originalPaddleNpcSpeed;
 
         private int playerScore = 0;
         private int npcScore = 0;
 
         private Random random = new Random();
-        private System.Windows.Forms.Timer speedBoostTimer; // Timer for speed boost
+        private System.Windows.Forms.Timer speedBoostTimer;
         private System.Windows.Forms.Timer cooldownTimer;
         private bool isCooldownActive = false;
         private int cooldownTimeLeft = 10;
@@ -45,7 +46,7 @@ namespace SepuluhNopemberAdventure
         private int playerVerticalSpeed = 0; 
         private int playerHorizontalSpeed = 0; 
         private int npcVerticalSpeed = 0; 
-        private int npcHorizontalSpeed = 10; 
+        private int npcHorizontalSpeed = 2; 
 
         bool win = false;
 
@@ -62,11 +63,11 @@ namespace SepuluhNopemberAdventure
             this.MaximizeBox = false;
             this.StartPosition = FormStartPosition.CenterScreen;
 
-            // Game field setup (zoomed-out area)
+            // Game field setup 
             gameField = new Panel
             {
-                Size = new Size(800, 600), // Smaller game field size
-                Location = new Point(100, 100), // Margins (zoom-out effect)
+                Size = new Size(800, 600), 
+                Location = new Point(100, 100), // Margins 
                 BackColor = Color.LightGray
             };
             this.Controls.Add(gameField);
@@ -98,6 +99,14 @@ namespace SepuluhNopemberAdventure
             };
             gameField.Controls.Add(ball);
 
+            // Make the ball round
+            ball.Region = new Region(new System.Drawing.Drawing2D.GraphicsPath());
+            using (var path = new System.Drawing.Drawing2D.GraphicsPath())
+            {
+                path.AddEllipse(0, 0, ball.Width, ball.Height);
+                ball.Region = new Region(path); 
+            }
+
             // Score label
             scoreLabel = new Label
             {
@@ -112,9 +121,9 @@ namespace SepuluhNopemberAdventure
             // Cooldown label
             cooldownLabel = new Label
             {
-                Text = "",
+                Text = "F",
                 Font = new Font("Arial", 12, FontStyle.Bold),
-                ForeColor = Color.Red,
+                ForeColor = Color.Green,
                 Location = new Point(gameField.Left, gameField.Bottom + 10),
                 AutoSize = true
             };
@@ -135,8 +144,8 @@ namespace SepuluhNopemberAdventure
             cooldownTimer.Interval = 1000; // 1-second intervals
             cooldownTimer.Tick += CooldownTimer_Tick;
 
-            originalPaddleSpeed = paddleSpeed; // Save original paddle speed
-
+            originalPaddleSpeed = paddleSpeed;
+            originalPaddleNpcSpeed = npcPaddleSpeed;
 
             // Key events for player control
             this.KeyDown += PingPongGame_KeyDown;
@@ -210,11 +219,10 @@ namespace SepuluhNopemberAdventure
                 speedBoostTimer.Start();
 
                 ballSpeedY = random.Next(-50, 50);
-                ballSpeedX = random.Next(20, 50);
                 if (ballSpeedX < 0)
-                {
-                    ballSpeedX = -ballSpeedX;
-                }
+                    ballSpeedX = random.Next(20, 50);
+                else
+                    ballSpeedX = random.Next(-50, -20);
 
                 playerPaddle.BackColor = Color.Yellow;
 
@@ -223,6 +231,42 @@ namespace SepuluhNopemberAdventure
                 cooldownTimeLeft = 10;
                 cooldownLabel.Text = $"F: {cooldownTimeLeft}s";
                 cooldownTimer.Start();
+            }
+
+            // Passive effect: Increase paddle size and speed if the score difference is 2
+            if (npcScore >= playerScore + 2 || playerScore >= npcScore + 2)
+            {
+                // Apply passive effect for the player
+                if (npcScore >= playerScore + 2)
+                {
+                    if (playerPaddle.Height != 150) 
+                    {
+                        playerPaddle.Height = 150;
+                        paddleSpeed += 2;          
+                    }
+                }
+                else // Apply passive effect for the NPC
+                {
+                    if (npcPaddle.Height != 150) 
+                    {
+                        npcPaddle.Height = 150;   
+                        npcPaddleSpeed += 2;      
+                    }
+                }
+            }
+            else
+            {
+                if (playerPaddle.Height != 100)
+                {
+                    playerPaddle.Height = 100;
+                    paddleSpeed = originalPaddleSpeed;
+                }
+
+                if (npcPaddle.Height != 100)
+                {
+                    npcPaddle.Height = 100;
+                    npcPaddleSpeed = originalPaddleNpcSpeed;
+                }
             }
 
             // NPC paddle vertical movement
@@ -258,7 +302,7 @@ namespace SepuluhNopemberAdventure
             }
             else if (ball.Bottom >= gameField.Height)
             {
-                ball.Top = gameField.Height - ball.Height; // Correct position at the bottom
+                ball.Top = gameField.Height - ball.Height; 
                 ballSpeedY = random.Next(3, 10);
                 ballSpeedY = -Math.Abs(ballSpeedY);
             }
@@ -267,7 +311,7 @@ namespace SepuluhNopemberAdventure
             if (ball.Bounds.IntersectsWith(playerPaddle.Bounds) && ballSpeedX < 0)
             {
                 int temp;
-                ball.Left = playerPaddle.Right; // Correct position to prevent overlap
+                ball.Left = playerPaddle.Right; 
 
                 // Reset ball speed to default
                 ballSpeedX = defaultBallSpeed;
@@ -281,14 +325,14 @@ namespace SepuluhNopemberAdventure
                 double resultantSpeed = Math.Sqrt(playerHorizontalSpeed * playerHorizontalSpeed +
                                                   playerVerticalSpeed * playerVerticalSpeed);
                 ballSpeedX += (int)Math.Ceiling(resultantSpeed);
-                ballSpeedX = Math.Abs(ballSpeedX); // Ensure it moves toward the NPC
+                ballSpeedX = Math.Abs(ballSpeedX);
             }
 
             // Ball collision with NPC paddle
             if (ball.Bounds.IntersectsWith(npcPaddle.Bounds) && ballSpeedX > 0)
             {
                 int temp;
-                ball.Left = npcPaddle.Left - ball.Width; // Correct position to prevent overlap
+                ball.Left = npcPaddle.Left - ball.Width; 
 
                 // Reset ball speed to default
                 ballSpeedX = defaultBallSpeed;
@@ -302,7 +346,7 @@ namespace SepuluhNopemberAdventure
                 // Calculate resultant speed using paddle movement
                 double resultantSpeed = Math.Sqrt(npcVerticalSpeed * npcVerticalSpeed);
                 ballSpeedX += (int)Math.Ceiling(resultantSpeed);
-                ballSpeedX = -Math.Abs(ballSpeedX); // Ensure it moves toward the player
+                ballSpeedX = -Math.Abs(ballSpeedX); 
             }
 
 
@@ -339,13 +383,8 @@ namespace SepuluhNopemberAdventure
 
         private void ResetBall(bool playerScored)
         {
-            // Reset ball
             ResetBallPositions();
-
-            // Reset the positions of both paddles and the ball
             ResetPositions();
-
-            // Reset ball speed
             ResetBallSpeed(playerScored);
         }
 
@@ -353,8 +392,6 @@ namespace SepuluhNopemberAdventure
         {
             int speedX = random.Next(3, 10);
             int speedY = random.Next(3, 10) * (random.Next(0, 2) == 0 ? 1 : -1); 
-
-            // Set X direction: positive (right) if player scored, negative (left) if NPC scored
             ballSpeedX = playerScored ? speedX : -speedX;
             ballSpeedY = speedY;
         }
@@ -378,8 +415,8 @@ namespace SepuluhNopemberAdventure
         private void SpeedBoostTimer_Tick(object sender, EventArgs e)
         {
             playerPaddle.BackColor = Color.Blue;
-            paddleSpeed = originalPaddleSpeed; // Reset speed to original
-            speedBoostTimer.Stop(); // Stop the timer
+            paddleSpeed = originalPaddleSpeed;
+            speedBoostTimer.Stop();
         }
 
         // Cooldown Timer Tick
@@ -390,12 +427,14 @@ namespace SepuluhNopemberAdventure
             if (cooldownTimeLeft > 0)
             {
                 cooldownLabel.Text = $"F: {cooldownTimeLeft}s";
+                cooldownLabel.ForeColor = Color.Red;
             }
             else
             {
                 // Reset cooldown
                 isCooldownActive = false;
-                cooldownLabel.Text = "";
+                cooldownLabel.Text = "F";
+                cooldownLabel.ForeColor = Color.Green;
                 cooldownTimer.Stop();
             }
         }
@@ -405,10 +444,17 @@ namespace SepuluhNopemberAdventure
             return win;
         }
 
+        public void GameFinished()
+        {
+            MessageBox.Show("Sudah menamatkan MiniGame ini, silahkan lanjut ke Quiz selanjutnya.",
+                            "MiniGame Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.Close();
+        }
+
         public void GameDone()
         {
             MessageBox.Show("Sudah menamatkan MiniGame ini, silahkan pergi ke area terakhir",
-                            "Quiz Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            "MiniGame Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Close();
         }
     }

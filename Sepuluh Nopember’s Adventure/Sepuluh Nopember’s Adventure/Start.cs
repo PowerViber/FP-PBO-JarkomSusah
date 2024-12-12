@@ -10,13 +10,13 @@ namespace Sepuluh_Nopember_s_Adventure
 {
     public class Start : Form
     {
-        private int win = 0;
-        private const int winNeed = 2;
+        private int win1 = 0;
+        private int win2 = 0;
 
-        // Barrier Coordinates for rivers (example)
-        private PictureBox _waterPictureBox1;
-        private PictureBox _waterPictureBox2;
-        private Rectangle bridge1 = new Rectangle(200, 320, 400, 50); // Jembatan pertama di sungai pertama
+        //// Barrier Coordinates for rivers (example)
+        //private PictureBox _waterPictureBox1;
+        //private PictureBox _waterPictureBox2;
+        //private Rectangle bridge1 = new Rectangle(200, 320, 400, 50); // Jembatan pertama di sungai pertama
 
         //public PictureBox GetPictureBox() => _waterPictureBox1;
 
@@ -74,14 +74,19 @@ namespace Sepuluh_Nopember_s_Adventure
                     QuizGame quizGameForm = new QuizGame();
                     if (finalScore1 == 3)
                     {
-                        quizGameForm.GameDone();
-                        win++;
+                        if (win2 == 0)
+                            quizGameForm.GameFinished();
+                        else
+                            quizGameForm.GameDone();
                         CheckWin();
                     }
                     else
                     {
                         quizGameForm.ShowDialog();
                         finalScore1 = quizGameForm.GetScore();
+                        if (finalScore1 == 3)
+                            win1 = 1;
+                        CheckWin();
                     }
                 }
             };
@@ -102,14 +107,19 @@ namespace Sepuluh_Nopember_s_Adventure
                     PingPongGame pingPongGameForm = new PingPongGame();
                     if (finalWin1)
                     {
-                        pingPongGameForm.GameDone();
-                        win++;
+                        if(win1 == 0)
+                            pingPongGameForm.GameFinished();
+                        else
+                            pingPongGameForm.GameDone();
                         CheckWin();
                     }
                     else
                     {
                         pingPongGameForm.ShowDialog();
                         finalWin1 = pingPongGameForm.CheckWin();
+                        if(finalWin1)
+                            win2 = 1;
+                        CheckWin();
                     }
                 }
             };
@@ -141,16 +151,19 @@ namespace Sepuluh_Nopember_s_Adventure
             this.Controls.Add(_player.GetPictureBox());
 
             //coins
-            _coins = new List<Coin>(); // List to store multiple coins
-            AddCoin(new Point(400, 500)); // Add the first coin
-            AddCoin(new Point(200, 400)); // Add the second coin
-            AddCoin(new Point(600, 700)); // Add the third coin
+            _coins = new List<Coin>(); 
+            AddCoin(new Point(400, 500)); 
+            AddCoin(new Point(200, 400)); 
+            AddCoin(new Point(600, 700)); 
 
-            // animation dan collision
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 };
             _animationTimer.Tick += (sender, e) =>
             {
-                _player.Walk(this.ClientSize, _npcPictureBoxes); 
+                // Boundaries final area
+                Rectangle restrictedArea = new Rectangle(0, 360, 800, 10);
+                bool canPassBoundary = (win1 == 1 && win2 == 1);
+
+                _player.Walk(this.ClientSize, _npcPictureBoxes, restrictedArea, canPassBoundary);
                 // collision coin
                 for (int i = 0; i < _coins.Count; i++)
                 {
@@ -164,9 +177,8 @@ namespace Sepuluh_Nopember_s_Adventure
                     }
                 }
             };
-            
-            _animationTimer.Tick += (sender, e) => _player.Walk(this.ClientSize, _npcPictureBoxes);
             _animationTimer.Start();
+
             this.KeyDown += (sender, e) =>
             {
                 _player.KeyDown(e.KeyCode);
@@ -206,7 +218,6 @@ namespace Sepuluh_Nopember_s_Adventure
             _player.KeyUp(e.KeyCode);
         }
         
-        //method tambah koin
         private void AddCoin(Point location)
         {
             Coin newCoin = new Coin(location);
@@ -216,7 +227,7 @@ namespace Sepuluh_Nopember_s_Adventure
 
         private void CheckWin()
         {
-            if (win >= 2)
+            if (win1 == 1 && win2 == 1)
             {
                 // Change the map to Resource.map2
                 using (MemoryStream ms = new MemoryStream(Resource.stage_final))

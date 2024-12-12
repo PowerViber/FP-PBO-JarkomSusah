@@ -94,9 +94,16 @@ namespace SepuluhNopemberAdventure
             this.Close();
         }
 
+        public void GameFinished()
+        {
+            MessageBox.Show("Sudah menamatkan Quiz ini, silahkan lanjut ke MiniGame selanjutnya.",
+                            "Quiz Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.Close();
+        }
+
         public void GameDone()
         {
-            MessageBox.Show("Sudah menamatkan Quiz ini, silahkan lanjut ke minigame selanjutnya.",
+            MessageBox.Show("Sudah menamatkan Quiz ini, silahkan pergi ke area terakhir",
                             "Quiz Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Close();
         }

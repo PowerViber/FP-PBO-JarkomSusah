@@ -52,7 +52,7 @@ public class Player
 
     public PictureBox GetPictureBox() => _playerPictureBox;
 
-    public void Walk(Size boundary, List<PictureBox> npcBox)
+    public void Walk(Size boundary, List<PictureBox> npcBox, Rectangle restrictedArea, bool canPassBoundary)
     {
         _isMoving = false;
         Point tempPosition = _playerPictureBox.Location;
@@ -62,7 +62,8 @@ public class Player
             _currentRow = 0;
             tempPosition.Y += movementSpeed;
             if (tempPosition.Y + _playerPictureBox.Height <= boundary.Height
-                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (!restrictedArea.IntersectsWith(new Rectangle(tempPosition, _playerPictureBox.Size)) || canPassBoundary))
             {
                 _playerPictureBox.Top += movementSpeed;
                 _isMoving = true;
@@ -73,7 +74,8 @@ public class Player
             _currentRow = 1;
             tempPosition.Y -= movementSpeed;
             if (tempPosition.Y >= 0
-                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (!restrictedArea.IntersectsWith(new Rectangle(tempPosition, _playerPictureBox.Size)) || canPassBoundary))
             {
                 _playerPictureBox.Top -= movementSpeed;
                 _isMoving = true;
@@ -84,7 +86,8 @@ public class Player
             _currentRow = 2;
             tempPosition.X -= movementSpeed;
             if (tempPosition.X >= 0
-                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (!restrictedArea.IntersectsWith(new Rectangle(tempPosition, _playerPictureBox.Size)) || canPassBoundary))
             {
                 _playerPictureBox.Left -= movementSpeed;
                 _isMoving = true;
@@ -95,7 +98,8 @@ public class Player
             _currentRow = 3;
             tempPosition.X += movementSpeed;
             if (tempPosition.X + _playerPictureBox.Width <= boundary.Width
-                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size))))
+                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
+                && (!restrictedArea.IntersectsWith(new Rectangle(tempPosition, _playerPictureBox.Size)) || canPassBoundary))
             {
                 _playerPictureBox.Left += movementSpeed;
                 _isMoving = true;
@@ -107,6 +111,7 @@ public class Player
         else
             StopWalking();
     }
+
 
     public void IncreaseSpeed()
     {
@@ -125,13 +130,13 @@ public class Player
     public void KeyDown(Keys key)
     {
         if (KeyStates.ContainsKey(key))
-            KeyStates[key] = true; // Mark key as pressed
+            KeyStates[key] = true; 
     }
 
     public void KeyUp(Keys key)
     {
         if (KeyStates.ContainsKey(key))
-            KeyStates[key] = false; // Mark key as released
+            KeyStates[key] = false; 
     }
 
     public void StopWalking()
