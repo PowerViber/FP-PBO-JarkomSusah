@@ -4,12 +4,15 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Sepuluh_Nopember_s_Adventure;
+
 public class Player
 {
     private const int PlayerWidth = 32;
     private const int PlayerHeight = 48;
     private const int TotalFrames = 8;
     private int movementSpeed = 3;
+    private int defaultSpeed = 3;
+    private System.Windows.Forms.Timer speedTimer;
 
     private PictureBox _playerPictureBox;
     private Image _spriteSheet;
@@ -17,7 +20,7 @@ public class Player
     private int _currentRow;
     private bool _isMoving;
 
-        public Dictionary<Keys, bool> KeyStates = new Dictionary<Keys, bool>();
+    public Dictionary<Keys, bool> KeyStates = new Dictionary<Keys, bool>();
 
     public Player(Point startPosition)
     {
@@ -26,32 +29,34 @@ public class Player
             _spriteSheet = Image.FromStream(ms);
         }
 
-            _currentFrame = 0;
-            _currentRow = 0;
+        _currentFrame = 0;
+        _currentRow = 0;
 
-            _playerPictureBox = new PictureBox
-            {
-                Size = new Size(PlayerWidth, PlayerHeight),
-                Location = startPosition,
-                BackColor = Color.Transparent
-            };
+        _playerPictureBox = new PictureBox
+        {
+            Size = new Size(PlayerWidth, PlayerHeight),
+            Location = startPosition,
+            BackColor = Color.Transparent
+        };
 
-            KeyStates[Keys.W] = false;
-            KeyStates[Keys.A] = false;
-            KeyStates[Keys.S] = false;
-            KeyStates[Keys.D] = false;
+        KeyStates[Keys.W] = false;
+        KeyStates[Keys.A] = false;
+        KeyStates[Keys.S] = false;
+        KeyStates[Keys.D] = false;
 
-            UpdateSprite();
-        }
+        UpdateSprite();
+        speedTimer = new System.Windows.Forms.Timer();
+        speedTimer.Interval = 3000; 
+        speedTimer.Tick += (sender, e) => ResetSpeed();
+    }
 
-        public PictureBox GetPictureBox() => _playerPictureBox;
+    public PictureBox GetPictureBox() => _playerPictureBox;
 
     public void Walk(Size boundary, List<PictureBox> npcBox)
     {
         _isMoving = false;
         Point tempPosition = _playerPictureBox.Location;
 
-        //feat : add logika jika nabrak star maka movementspeed tambah
         if (KeyStates[Keys.S]) // Down
         {
             _currentRow = 0;
@@ -107,6 +112,14 @@ public class Player
     {
         movementSpeed += 5;
         Console.WriteLine("Kecepatan sekarang: " + movementSpeed);
+        speedTimer.Start(); 
+    }
+
+    private void ResetSpeed()
+    {
+        movementSpeed = defaultSpeed;
+        Console.WriteLine("Kecepatan kembali ke: " + movementSpeed);
+        speedTimer.Stop(); 
     }
 
     public void KeyDown(Keys key)
@@ -181,4 +194,3 @@ public class Player
         }
     }
 }
-
