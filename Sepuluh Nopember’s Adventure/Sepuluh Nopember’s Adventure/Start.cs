@@ -13,13 +13,6 @@ namespace Sepuluh_Nopember_s_Adventure
         private int win1 = 0;
         private int win2 = 0;
 
-        //// Barrier Coordinates for rivers (example)
-        //private PictureBox _waterPictureBox1;
-        //private PictureBox _waterPictureBox2;
-        //private Rectangle bridge1 = new Rectangle(200, 320, 400, 50); // Jembatan pertama di sungai pertama
-
-        //public PictureBox GetPictureBox() => _waterPictureBox1;
-
         //player
         private const int PlayerX = 365;
         private const int PlayerY = 800;
@@ -44,6 +37,15 @@ namespace Sepuluh_Nopember_s_Adventure
         private const int Npc2X = 700;
         private const int Npc2Y = 500;
 
+        //npc3
+        private PictureBox npc3_pbox;
+        private NPC npc3;
+        private const int Npc3X = 362;
+        private const int Npc3Y = 50;
+
+        //water
+        private List<PictureBox> _boundaries;
+
         public Start()
         {
             Init();
@@ -58,6 +60,24 @@ namespace Sepuluh_Nopember_s_Adventure
                 this.BackgroundImage = Image.FromStream(ms);
             }
             this.BackgroundImageLayout = ImageLayout.Stretch;
+
+            //-------- BOUNDARIES LIST ----------//
+            _boundaries = new List<PictureBox>();
+            
+            // water
+            AddBoundary(new Rectangle(0, 315, 320, 55)); // akiri
+            AddBoundary(new Rectangle(430, 315, 800, 55)); // akanan
+            AddBoundary(new Rectangle(0, 620, 320, 80));  // bkiri
+            AddBoundary(new Rectangle(430, 620, 800, 80)); // bkanan
+
+            //jembatan
+            AddBoundary(new Rectangle(305, 275, 15, 15)); // atas kiri
+            AddBoundary(new Rectangle(430, 275, 15, 15)); // atas kanan
+
+            //fountain
+            AddBoundary(new Rectangle(321, 470, 100, 50));
+
+            //------------------------------------//
 
             //npc1
             npc1_pbox = new PictureBox
@@ -125,18 +145,35 @@ namespace Sepuluh_Nopember_s_Adventure
             };
             this.Controls.Add(npc2_pbox);
 
+            //npc3
+            npc3_pbox = new PictureBox
+            {
+                Location = new Point(Npc3X, Npc3Y),
+                BackColor = Color.Transparent,
+                BorderStyle = BorderStyle.None
+            };
+            npc3 = new NPC(0, 10, npc3_pbox)
+            {
+                InteractionAction = () =>
+                {
+                }
+            };
+            this.Controls.Add(npc3_pbox);
+
 
             //-------- NPC LIST ----------//
             _npcs = new List<NPC>
             {
                 npc1,
-                npc2
+                npc2,
+                npc3
             };
 
             _npcPictureBoxes = new List<PictureBox>
             {
                 npc1_pbox,
-                npc2_pbox
+                npc2_pbox,
+                npc3_pbox
             };
 
             foreach (var npcPbox in _npcPictureBoxes)
@@ -163,7 +200,8 @@ namespace Sepuluh_Nopember_s_Adventure
                 Rectangle restrictedArea = new Rectangle(0, 360, 800, 10);
                 bool canPassBoundary = (win1 == 1 && win2 == 1);
 
-                _player.Walk(this.ClientSize, _npcPictureBoxes, restrictedArea, canPassBoundary);
+                _player.Walk(this.ClientSize, _npcPictureBoxes, restrictedArea, canPassBoundary, _boundaries);
+
                 // collision coin
                 for (int i = 0; i < _coins.Count; i++)
                 {
@@ -189,18 +227,6 @@ namespace Sepuluh_Nopember_s_Adventure
                 }
             };
             this.KeyUp += (sender, e) => _player.KeyUp(e.KeyCode);
-
-            //npc2
-            //npc2_pbox = new PictureBox
-            //{
-            //    Location = new Point(Npc2X, Npc2Y),
-            //    BackColor = Color.Transparent,
-            //    BorderStyle = BorderStyle.None
-            //};
-            //npc2 = new NPC(2, 7, npc2_pbox);
-            //this.Controls.Add(npc2_pbox);
-
-            //npc3
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
@@ -224,6 +250,19 @@ namespace Sepuluh_Nopember_s_Adventure
             _coins.Add(newCoin);
             this.Controls.Add(newCoin.GetPictureBox());
         }
+
+        private void AddBoundary(Rectangle bounds)
+        {
+            PictureBox boundary = new PictureBox
+            {
+                Location = new Point(bounds.X, bounds.Y),
+                Size = new Size(bounds.Width, bounds.Height),
+                BackColor = Color.Transparent, // Replace with transparent if using actual map graphics
+            };
+            this.Controls.Add(boundary);
+            _boundaries.Add(boundary);
+        }
+
 
         private void CheckWin()
         {

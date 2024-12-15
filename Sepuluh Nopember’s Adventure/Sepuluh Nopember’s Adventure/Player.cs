@@ -52,7 +52,7 @@ public class Player
 
     public PictureBox GetPictureBox() => _playerPictureBox;
 
-    public void Walk(Size boundary, List<PictureBox> npcBox, Rectangle restrictedArea, bool canPassBoundary)
+    public void Walk(Size boundary, List<PictureBox> npcBox, Rectangle restrictedArea, bool canPassBoundary, List<PictureBox> waterBoundaries)
     {
         _isMoving = false;
         Point tempPosition = _playerPictureBox.Location;
@@ -61,9 +61,7 @@ public class Player
         {
             _currentRow = 0;
             tempPosition.Y += movementSpeed;
-            if (tempPosition.Y + _playerPictureBox.Height <= boundary.Height
-                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
-                && (!restrictedArea.IntersectsWith(new Rectangle(tempPosition, _playerPictureBox.Size)) || canPassBoundary))
+            if (IsMoveValid(tempPosition, boundary, npcBox, restrictedArea, waterBoundaries, canPassBoundary))
             {
                 _playerPictureBox.Top += movementSpeed;
                 _isMoving = true;
@@ -73,9 +71,7 @@ public class Player
         {
             _currentRow = 1;
             tempPosition.Y -= movementSpeed;
-            if (tempPosition.Y >= 0
-                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
-                && (!restrictedArea.IntersectsWith(new Rectangle(tempPosition, _playerPictureBox.Size)) || canPassBoundary))
+            if (IsMoveValid(tempPosition, boundary, npcBox, restrictedArea, waterBoundaries, canPassBoundary))
             {
                 _playerPictureBox.Top -= movementSpeed;
                 _isMoving = true;
@@ -85,9 +81,7 @@ public class Player
         {
             _currentRow = 2;
             tempPosition.X -= movementSpeed;
-            if (tempPosition.X >= 0
-                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
-                && (!restrictedArea.IntersectsWith(new Rectangle(tempPosition, _playerPictureBox.Size)) || canPassBoundary))
+            if (IsMoveValid(tempPosition, boundary, npcBox, restrictedArea, waterBoundaries, canPassBoundary))
             {
                 _playerPictureBox.Left -= movementSpeed;
                 _isMoving = true;
@@ -97,9 +91,7 @@ public class Player
         {
             _currentRow = 3;
             tempPosition.X += movementSpeed;
-            if (tempPosition.X + _playerPictureBox.Width <= boundary.Width
-                && (npcBox == null || !CheckCollision(npcBox, new Rectangle(tempPosition, _playerPictureBox.Size)))
-                && (!restrictedArea.IntersectsWith(new Rectangle(tempPosition, _playerPictureBox.Size)) || canPassBoundary))
+            if (IsMoveValid(tempPosition, boundary, npcBox, restrictedArea, waterBoundaries, canPassBoundary))
             {
                 _playerPictureBox.Left += movementSpeed;
                 _isMoving = true;
@@ -112,6 +104,25 @@ public class Player
             StopWalking();
     }
 
+    private bool IsMoveValid(Point position, Size boundary, List<PictureBox> npcBox, Rectangle restrictedArea, List<PictureBox> waterBoundaries, bool canPassBoundary)
+    {
+        Rectangle playerBounds = new Rectangle(position, _playerPictureBox.Size);
+        foreach (var water in waterBoundaries)
+        {
+            if (playerBounds.IntersectsWith(water.Bounds))
+                return false; // Collides with water
+        }
+
+        if (!canPassBoundary && restrictedArea.IntersectsWith(playerBounds))
+            return false;
+
+        if (npcBox != null && CheckCollision(npcBox, playerBounds))
+            return false;
+
+        return position.X >= 0 && position.Y >= 0 &&
+               position.X + _playerPictureBox.Width <= boundary.Width &&
+               position.Y + _playerPictureBox.Height <= boundary.Height;
+    }
 
     public void IncreaseSpeed()
     {
