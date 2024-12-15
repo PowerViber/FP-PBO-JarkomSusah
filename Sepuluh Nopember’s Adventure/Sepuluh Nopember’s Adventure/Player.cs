@@ -209,4 +209,9 @@ public class Player
             }
         }
     }
+    public void SetVisibility(bool isVisible)
+    {
+        _playerPictureBox.Visible = isVisible;
+    }
+
 }
