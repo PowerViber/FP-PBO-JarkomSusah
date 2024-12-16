@@ -73,6 +73,16 @@ namespace Sepuluh_Nopember_s_Adventure {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] stage_2 {
+            get {
+                object obj = ResourceManager.GetObject("stage_2", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] stage_final {
             get {
                 object obj = ResourceManager.GetObject("stage_final", resourceCulture);
@@ -91,12 +101,12 @@ namespace Sepuluh_Nopember_s_Adventure {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static System.Drawing.Bitmap star {
+        internal static byte[] star {
             get {
                 object obj = ResourceManager.GetObject("star", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         

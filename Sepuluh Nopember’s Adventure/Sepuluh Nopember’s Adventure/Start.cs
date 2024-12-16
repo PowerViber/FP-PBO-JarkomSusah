@@ -97,16 +97,16 @@ namespace Sepuluh_Nopember_s_Adventure
             _topPictureBoxes = new List<PictureBox>();
 
             //tower
-            AddTowerTop(new Rectangle(0, 700, 117, 130)); // kirib
-            AddTowerTop(new Rectangle(664, 700, 117, 130)); // kananb
-            AddTowerTop(new Rectangle(0, 43, 117, 130)); // kiria
-            AddTowerTop(new Rectangle(664, 43, 117, 130)); // kanana
+            AddTop(new Rectangle(0, 700, 117, 130)); // kirib
+            AddTop(new Rectangle(664, 700, 117, 130)); // kananb
+            AddTop(new Rectangle(0, 43, 117, 130)); // kiria
+            AddTop(new Rectangle(664, 43, 117, 130)); // kanana
 
 
 
-            foreach (var towerTop in _topPictureBoxes)
+            foreach (var top in _topPictureBoxes)
             {
-                this.Controls.SetChildIndex(towerTop, 1); 
+                this.Controls.SetChildIndex(top, 1); 
             }
             //-------------------------------------------------//
 
@@ -317,28 +317,39 @@ namespace Sepuluh_Nopember_s_Adventure
             }
         }
 
-        private void ShowCompletionMessage() 
+        private void ShowCompletionMessage()
         {
-        MessageBox.Show("Selamat kamu telah menamatkan game! Terima kasih telah bermain!", "Game Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        Application.Exit();      
+            MessageBox.Show("Selamat kamu telah menyelesaikan stage pertama! Selamat bermain di stage kedua!",
+                    "Stage Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            // Open the new form (Second)
+            Second secondForm = new Second();
+            secondForm.Show();
+
+            // Close the current form
+            this.Hide();
+
+            // Optionally handle when the second form closes
+            secondForm.FormClosed += (s, args) => this.Close();
         }
-        private void AddTowerTop(Rectangle topBounds)
+
+        private void AddTop(Rectangle topBounds)
         {
-            PictureBox towerTop = new PictureBox
+            PictureBox top = new PictureBox
             {
                 Location = new Point(topBounds.X, topBounds.Y),
                 Size = new Size(topBounds.Width, topBounds.Height),
                 BackColor = Color.Transparent,
             };
 
-            towerTop.Image = new Bitmap(topBounds.Width, topBounds.Height);
-            using (Graphics g = Graphics.FromImage(towerTop.Image))
+            top.Image = new Bitmap(topBounds.Width, topBounds.Height);
+            using (Graphics g = Graphics.FromImage(top.Image))
             {
                 g.Clear(Color.Transparent); //ganti wanra buat debug
             }
 
-            this.Controls.Add(towerTop);
-            _topPictureBoxes.Add(towerTop);
+            this.Controls.Add(top);
+            _topPictureBoxes.Add(top);
         }
 
     }

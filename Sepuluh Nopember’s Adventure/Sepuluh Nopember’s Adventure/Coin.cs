@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Sepuluh_Nopember_s_Adventure;
+using SepuluhNopemberAdventure;
+
 
 namespace Sepuluh_Nopember_s_Adventure
 {
@@ -13,14 +15,17 @@ namespace Sepuluh_Nopember_s_Adventure
 
         public Coin(Point location)
         {
-            _coinPictureBox = new PictureBox
+            using (MemoryStream ms = new MemoryStream(Resource.star)) // Convert byte[] to stream
             {
-                Size = new Size(CoinWidth, CoinHeight),
-                Location = location,
-                BackColor = Color.Transparent,
-                Image = new Bitmap(Resource.star),
-                SizeMode = PictureBoxSizeMode.StretchImage
-            };
+                _coinPictureBox = new PictureBox
+                {
+                    Size = new Size(CoinWidth, CoinHeight),
+                    Location = location,
+                    BackColor = Color.Transparent,
+                    Image = new Bitmap(ms), // Create the Bitmap from MemoryStream
+                    SizeMode = PictureBoxSizeMode.StretchImage
+                };
+            }
         }
 
         public PictureBox GetPictureBox() => _coinPictureBox;
