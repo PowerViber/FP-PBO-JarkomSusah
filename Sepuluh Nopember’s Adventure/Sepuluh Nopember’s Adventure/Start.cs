@@ -43,8 +43,12 @@ namespace Sepuluh_Nopember_s_Adventure
         private const int Npc3X = 362;
         private const int Npc3Y = 50;
 
-        //water
+        //boundaries
         private List<PictureBox> _boundaries;
+
+        //top area -> invis player
+        private List<PictureBox> _topPictureBoxes;
+
 
         public Start()
         {
@@ -77,7 +81,34 @@ namespace Sepuluh_Nopember_s_Adventure
             //fountain
             AddBoundary(new Rectangle(321, 470, 100, 50));
 
+            //chair
+            AddBoundary(new Rectangle(125, 420, 100, 20)); //kiri
+            AddBoundary(new Rectangle(556, 420, 100, 20)); //kanan
+
+            //tower
+            AddBoundary(new Rectangle(0, 841, 112, 40)); // kirib
+            AddBoundary(new Rectangle(675, 841, 115, 40)); // kananb
+            AddBoundary(new Rectangle(0, 183, 112, 40)); // kiria
+            AddBoundary(new Rectangle(675, 183, 115, 40)); // kanana
+
             //------------------------------------//
+
+            //------------------- TOP LIST --------------------//
+            _topPictureBoxes = new List<PictureBox>();
+
+            //tower
+            AddTowerTop(new Rectangle(0, 700, 117, 130)); // kirib
+            AddTowerTop(new Rectangle(664, 700, 117, 130)); // kananb
+            AddTowerTop(new Rectangle(0, 43, 117, 130)); // kiria
+            AddTowerTop(new Rectangle(664, 43, 117, 130)); // kanana
+
+
+
+            foreach (var towerTop in _topPictureBoxes)
+            {
+                this.Controls.SetChildIndex(towerTop, 1); 
+            }
+            //-------------------------------------------------//
 
             //npc1
             npc1_pbox = new PictureBox
@@ -211,8 +242,16 @@ namespace Sepuluh_Nopember_s_Adventure
                         Console.WriteLine("Koin diambil!");
                         _player.IncreaseSpeed(); 
                         _coins[i].Collect(); 
-                        this.Controls.Remove(_coins[i].GetPictureBox()); 
-                        _coins[i] = null; 
+                        this.Controls.Remove(_coins[i].GetPictureBox());
+                        _coins[i] = null;
+                    }
+                }
+
+                foreach (var coin in _coins)
+                {
+                    if (coin != null)
+                    {
+                        this.Controls.SetChildIndex(coin.GetPictureBox(), 0); // Bring coins to the top
                     }
                 }
             };
@@ -283,5 +322,24 @@ namespace Sepuluh_Nopember_s_Adventure
         MessageBox.Show("Selamat kamu telah menamatkan game! Terima kasih telah bermain!", "Game Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
         Application.Exit();      
         }
+        private void AddTowerTop(Rectangle topBounds)
+        {
+            PictureBox towerTop = new PictureBox
+            {
+                Location = new Point(topBounds.X, topBounds.Y),
+                Size = new Size(topBounds.Width, topBounds.Height),
+                BackColor = Color.Transparent,
+            };
+
+            towerTop.Image = new Bitmap(topBounds.Width, topBounds.Height);
+            using (Graphics g = Graphics.FromImage(towerTop.Image))
+            {
+                g.Clear(Color.Transparent); //ganti wanra buat debug
+            }
+
+            this.Controls.Add(towerTop);
+            _topPictureBoxes.Add(towerTop);
+        }
+
     }
 }
