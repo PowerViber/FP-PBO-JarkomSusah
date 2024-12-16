@@ -156,6 +156,7 @@ namespace Sepuluh_Nopember_s_Adventure
             {
                 InteractionAction = () =>
                 {
+                    ShowCompletionMessage();
                 }
             };
             this.Controls.Add(npc3_pbox);
@@ -277,5 +278,10 @@ namespace Sepuluh_Nopember_s_Adventure
             }
         }
 
+        private void ShowCompletionMessage() 
+        {
+        MessageBox.Show("Selamat kamu telah menamatkan game! Terima kasih telah bermain!", "Game Selesai", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        Application.Exit();      
+        }
     }
 }
