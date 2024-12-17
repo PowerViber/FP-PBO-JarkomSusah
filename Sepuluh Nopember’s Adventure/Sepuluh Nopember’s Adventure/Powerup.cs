@@ -25,12 +25,10 @@ namespace Sepuluh_Nopember_s_Adventure
 
         public abstract void Collect();
         public abstract bool CheckCollision(PictureBox playerBox);
-
-        // Memindahkan logika penghapusan powerup
         public void RemoveFromGame(Control parentControl)
         {
             parentControl.Controls.Remove(_powerupPictureBox);
-            _powerupPictureBox.Visible = false; // Menghapus tampilan gambar powerup
+            _powerupPictureBox.Visible = false; 
         }
     }
 }

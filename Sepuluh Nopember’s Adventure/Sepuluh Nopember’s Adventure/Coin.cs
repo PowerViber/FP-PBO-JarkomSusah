@@ -16,9 +16,7 @@ namespace Sepuluh_Nopember_s_Adventure
 
         public override void Collect()
         {
-            // Logika untuk pengambilan koin, misalnya meningkatkan skor atau kecepatan pemain
             Console.WriteLine("Coin collected!");
-            // Menghapus powerup dari game setelah dikumpulkan
             RemoveFromGame(_powerupPictureBox.Parent);
         }
 
