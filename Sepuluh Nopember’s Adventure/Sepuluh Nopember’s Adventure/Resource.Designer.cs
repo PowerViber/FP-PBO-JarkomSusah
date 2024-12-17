@@ -73,6 +73,16 @@ namespace Sepuluh_Nopember_s_Adventure {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] sizeup_icon {
+            get {
+                object obj = ResourceManager.GetObject("sizeup_icon", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] stage_2 {
             get {
                 object obj = ResourceManager.GetObject("stage_2", resourceCulture);

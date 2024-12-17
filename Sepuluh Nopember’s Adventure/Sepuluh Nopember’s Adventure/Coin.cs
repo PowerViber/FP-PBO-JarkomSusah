@@ -1,42 +1,30 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Sepuluh_Nopember_s_Adventure;
-using SepuluhNopemberAdventure;
-
 
 namespace Sepuluh_Nopember_s_Adventure
 {
-    public class Coin
+    public class Coin : Powerup
     {
-        private PictureBox _coinPictureBox;
-        private const int CoinWidth = 60;
-        private const int CoinHeight = 60;
-
-        public Coin(Point location)
+        public Coin(Point location) : base(location)
         {
-            using (MemoryStream ms = new MemoryStream(Resource.star)) // Convert byte[] to stream
+            using (MemoryStream ms = new MemoryStream(Resource.star))
             {
-                _coinPictureBox = new PictureBox
-                {
-                    Size = new Size(CoinWidth, CoinHeight),
-                    Location = location,
-                    BackColor = Color.Transparent,
-                    Image = new Bitmap(ms), // Create the Bitmap from MemoryStream
-                    SizeMode = PictureBoxSizeMode.StretchImage
-                };
+                _powerupPictureBox.Image = new Bitmap(ms);
             }
         }
 
-        public PictureBox GetPictureBox() => _coinPictureBox;
-        public void Collect()
+        public override void Collect()
         {
-            _coinPictureBox.Visible = false;
+            // Logika untuk pengambilan koin, misalnya meningkatkan skor atau kecepatan pemain
+            Console.WriteLine("Coin collected!");
+            // Menghapus powerup dari game setelah dikumpulkan
+            RemoveFromGame(_powerupPictureBox.Parent);
         }
 
-        public bool CheckCollision(PictureBox playerBox)
+        public override bool CheckCollision(PictureBox playerBox)
         {
-            return playerBox.Bounds.IntersectsWith(_coinPictureBox.Bounds);
+            return _powerupPictureBox.Bounds.IntersectsWith(playerBox.Bounds);
         }
     }
 }
