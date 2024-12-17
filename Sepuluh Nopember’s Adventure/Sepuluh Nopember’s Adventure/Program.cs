@@ -9,7 +9,7 @@ namespace Sepuluh_Nopember_s_Adventure
         static void Main()
         {
             ApplicationConfiguration.Initialize(); 
-            Application.Run(new Start());
+            Application.Run(new Second());
         }
     }
 }

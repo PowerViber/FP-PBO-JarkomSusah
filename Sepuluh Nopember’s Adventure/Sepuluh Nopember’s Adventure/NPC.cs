@@ -120,7 +120,7 @@ namespace Sepuluh_Nopember_s_Adventure
 
         public void ProvideQuest()
         {
-            MessageBox.Show("I have a quest for you: Collect 5 special items to proceed!",
+            MessageBox.Show("Choose the correct door to win",
                             "Stage 2 Quest", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
