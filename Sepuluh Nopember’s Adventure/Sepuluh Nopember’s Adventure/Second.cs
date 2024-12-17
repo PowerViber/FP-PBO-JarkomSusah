@@ -21,11 +21,11 @@ namespace Sepuluh_Nopember_s_Adventure
 
         //npc list
         private List<PictureBox> _npcPictureBoxes;
-        private List<NPC> _npcs;
+        private List<Stage_2NPC> _npcs;
 
         //npc1
         private PictureBox npc1_pbox;
-        private NPC npc1;
+        private Stage_2NPC npc1;
         private const int Npc1X = 120;
         private const int Npc1Y = 800;
 
@@ -75,7 +75,7 @@ namespace Sepuluh_Nopember_s_Adventure
                 BackColor = Color.Transparent,
                 BorderStyle = BorderStyle.None
             };
-            npc1 = new NPC(2, 7, npc1_pbox)
+            npc1 = new Stage_2NPC(2, 7, npc1_pbox)
             {
                 InteractionAction = () =>
                 {
@@ -85,7 +85,7 @@ namespace Sepuluh_Nopember_s_Adventure
             this.Controls.Add(npc1_pbox);
 
             //-------- NPC LIST ----------//
-            _npcs = new List<NPC>
+            _npcs = new List<Stage_2NPC>
             {
                 npc1
             };

@@ -189,7 +189,7 @@ public class Player
         return false;
     }
 
-    public void Interact(List<NPC> npcs)
+    public void Interact(IEnumerable<BaseNPC> npcs)
     {
         int interactionMargin = 20; // Defines interaction range
 

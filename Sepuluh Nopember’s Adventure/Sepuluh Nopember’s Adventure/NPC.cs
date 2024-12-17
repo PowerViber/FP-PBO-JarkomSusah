@@ -1,39 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
-using SepuluhNopemberAdventure;
 
 namespace Sepuluh_Nopember_s_Adventure
 {
-    public class NPC
+    public interface IInteractable
     {
-        private const int TotalFrames = 12;
-        private const int TotalRows = 8;
-        private const int NpcWidth = 32;
-        private const int NpcHeight = 48;
+        void Interact(); // Method to enforce interaction behavior
+    }
 
-        private PictureBox _npcPictureBox;
-        private Image _spriteSheet;
-        private int _currentFrame;
-        private int _currentRow;
+    public abstract class BaseNPC : IInteractable
+    {
+        protected const int TotalFrames = 12;
+        protected const int TotalRows = 8;
+        protected const int NpcWidth = 32;
+        protected const int NpcHeight = 48;
 
-        public Action InteractionAction { get; set; }
+        protected PictureBox _npcPictureBox;
+        protected Image _spriteSheet;
+        protected int _currentFrame;
+        protected int _currentRow;
 
-        public NPC(int row, int column, PictureBox npcPictureBox)
+        public abstract void Interact(); // Abstract method forces implementation
+
+        public BaseNPC(int row, int column, PictureBox npcPictureBox, byte[] spriteResource)
         {
             _npcPictureBox = npcPictureBox;
 
             _npcPictureBox.Tag = new { Row = row, Column = column, Size = new Size(NpcWidth, NpcHeight) };
             _npcPictureBox.Size = new Size(NpcWidth, NpcHeight);
-            InteractionAction = DefaultInteraction;
 
-            using (MemoryStream ms = new MemoryStream(Resource.npc))
+            using (MemoryStream ms = new MemoryStream(spriteResource))
             {
                 _spriteSheet = Image.FromStream(ms);
             }
@@ -46,16 +44,16 @@ namespace Sepuluh_Nopember_s_Adventure
 
         public PictureBox GetPictureBox() => _npcPictureBox;
 
-        public void UpdateSprite()
+        protected void UpdateSprite()
         {
-            int frameWidth = _spriteSheet.Width / TotalFrames; 
-            int frameHeight = _spriteSheet.Height / TotalRows;  
+            int frameWidth = _spriteSheet.Width / TotalFrames;
+            int frameHeight = _spriteSheet.Height / TotalRows;
 
             Rectangle srcRect = new Rectangle(
-                _currentFrame * frameWidth,   
-                _currentRow * frameHeight,   
-                frameWidth,                   
-                frameHeight                   
+                _currentFrame * frameWidth,
+                _currentRow * frameHeight,
+                frameWidth,
+                frameHeight
             );
 
             Bitmap resizedFrameImage = new Bitmap(NpcWidth, NpcHeight);
@@ -67,25 +65,63 @@ namespace Sepuluh_Nopember_s_Adventure
                 g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
 
                 g.DrawImage(
-                    _spriteSheet,                           
+                    _spriteSheet,
                     new Rectangle(0, 0, NpcWidth, NpcHeight),
-                    srcRect,                                
+                    srcRect,
                     GraphicsUnit.Pixel
                 );
             }
 
             _npcPictureBox.Image = resizedFrameImage;
         }
+    }
 
+    public class Stage_1NPC : BaseNPC
+    {
+        public Action InteractionAction { get; set; }
 
-        public void Interact()
+        public Stage_1NPC(int row, int column, PictureBox npcPictureBox)
+            : base(row, column, npcPictureBox, Resource.npc) // Pass sprite resource
         {
-            InteractionAction?.Invoke(); // Invoke the assigned action
+            InteractionAction = DefaultInteraction;
+        }
+
+        public override void Interact()
+        {
+            InteractionAction?.Invoke();
         }
 
         private void DefaultInteraction()
         {
             MessageBox.Show("This NPC has no specific interaction.");
+        }
+    }
+
+    public class Stage_2NPC : BaseNPC
+    {
+        public Action InteractionAction { get; set; }
+
+        public Stage_2NPC(int row, int column, PictureBox npcPictureBox)
+            : base(row, column, npcPictureBox, Resource.npc) 
+        {
+            InteractionAction = DefaultInteraction;
+        }
+
+        public override void Interact()
+        {
+            InteractionAction?.Invoke();
+        }
+
+        private void DefaultInteraction()
+        {
+            MessageBox.Show("Welcome to Stage 2! Things are about to get challenging!",
+                            "Stage 2 NPC Interaction", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        public void ProvideQuest()
+        {
+            MessageBox.Show("I have a quest for you: Collect 5 special items to proceed!",
+                            "Stage 2 Quest", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

@@ -23,23 +23,23 @@ namespace Sepuluh_Nopember_s_Adventure
         private List<Coin> _coins;
 
         private List<PictureBox> _npcPictureBoxes;
-        private List<NPC> _npcs;
+        private List<Stage_1NPC> _npcs;
 
         //npc1
         private PictureBox npc1_pbox;
-        private NPC npc1;
+        private Stage_1NPC npc1;
         private const int Npc1X = 120;
         private const int Npc1Y = 800;
 
         //npc2
         private PictureBox npc2_pbox;
-        private NPC npc2;
+        private Stage_1NPC npc2;
         private const int Npc2X = 700;
         private const int Npc2Y = 500;
 
         //npc3
         private PictureBox npc3_pbox;
-        private NPC npc3;
+        private Stage_1NPC npc3;
         private const int Npc3X = 362;
         private const int Npc3Y = 50;
 
@@ -118,7 +118,7 @@ namespace Sepuluh_Nopember_s_Adventure
                 BorderStyle = BorderStyle.None
             };
             int finalScore1 = 0;
-            npc1 = new NPC(2, 7, npc1_pbox)
+            npc1 = new Stage_1NPC(2, 7, npc1_pbox)
             {
                 InteractionAction = () =>
                 {
@@ -151,7 +151,7 @@ namespace Sepuluh_Nopember_s_Adventure
                 BackColor = Color.Transparent,
                 BorderStyle = BorderStyle.None
             };
-            npc2 = new NPC(5, 1, npc2_pbox)
+            npc2 = new Stage_1NPC(5, 1, npc2_pbox)
             {
                 InteractionAction = () =>
                 {
@@ -183,7 +183,7 @@ namespace Sepuluh_Nopember_s_Adventure
                 BackColor = Color.Transparent,
                 BorderStyle = BorderStyle.None
             };
-            npc3 = new NPC(0, 10, npc3_pbox)
+            npc3 = new Stage_1NPC(0, 10, npc3_pbox)
             {
                 InteractionAction = () =>
                 {
@@ -194,7 +194,7 @@ namespace Sepuluh_Nopember_s_Adventure
 
 
             //-------- NPC LIST ----------//
-            _npcs = new List<NPC>
+            _npcs = new List<Stage_1NPC>
             {
                 npc1,
                 npc2,
